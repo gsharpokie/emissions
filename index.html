@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Emits the Carbon?</title>
+<meta name="description" content="Which countries emit the most CO₂, per country and per person? Have any cut emissions while their economies grew? Guess, then see the data.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gsharpokie.github.io/emissions/">
+<meta property="og:title" content="Who Emits the Carbon?">
+<meta property="og:description" content="Which countries emit the most CO₂, per country and per person? Have any cut emissions while their economies grew? Guess, then see the data.">
+<meta property="og:image" content="https://gsharpokie.github.io/emissions/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Who Emits the Carbon? Lines showing CO₂ emissions per person since 1950 for the U.S., U.K., EU, China, India, and the world.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@gsharpokie">
+<meta name="twitter:title" content="Who Emits the Carbon?">
+<meta name="twitter:description" content="Which countries emit the most CO₂, per country and per person? Have any cut emissions while their economies grew? Guess, then see the data.">
+<meta name="twitter:image" content="https://gsharpokie.github.io/emissions/preview.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2318322b'/%3E%3Cpath d='M6 10 L13 14 L19 12 L26 22' fill='none' stroke='%23e8c25a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* Layout: one column. Nine questions (sliders and multiple choice), each revealed with bars.
+   After the questions: a per-person line chart since 1950, all answers, the fuller picture, discussion, sources. */
+:root {
+  --paper: #f3f5f1; --surface: #ffffff; --ink: #1a2a24; --muted: #57685f; --line: #d7ded8;
+  --you: #c0581d; --then: #a3b5ab; --now: #2d6a4f; --alt: #6b7fb8;
+  --c-us: #2d6a4f; --c-uk: #8c6bb1; --c-eu: #3a7fb8; --c-cn: #c0581d; --c-in: #b8901f; --c-w: #1a2a24; --onbar: #ffffff;
+  --focus: #c0581d;
+  --display: "Libre Franklin", "Segoe UI", system-ui, sans-serif;
+  --body: Aptos, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101814; --surface: #17221d; --ink: #e7efe9; --muted: #a2b3a9; --line: #2e3d35;
+    --you: #f0935a; --then: #4f6a5c; --now: #6cc49a; --alt: #9aa9e0;
+    --c-us: #6cc49a; --c-uk: #b9a0de; --c-eu: #7fb4e6; --c-cn: #f0935a; --c-in: #e0c060; --c-w: #e7efe9; --onbar: #101814; --focus: #f0935a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101814; --surface: #17221d; --ink: #e7efe9; --muted: #a2b3a9; --line: #2e3d35;
+  --you: #f0935a; --then: #4f6a5c; --now: #6cc49a; --alt: #9aa9e0;
+  --c-us: #6cc49a; --c-uk: #b9a0de; --c-eu: #7fb4e6; --c-cn: #f0935a; --c-in: #e0c060; --c-w: #e7efe9; --onbar: #101814; --focus: #f0935a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 1.05rem; line-height: 1.55; }
+.wrap { max-width: 46rem; margin: 0 auto; padding: 2rem 1rem 3rem; display: grid; gap: 1.6rem; }
+header { display: grid; gap: .45rem; }
+.kicker { font-size: .85rem; color: var(--muted); }
+.kicker a, footer a, .notes a, .prose a { color: var(--ink); }
+h1 { font-family: var(--display); font-weight: 900; font-size: clamp(2.3rem, 8vw, 3.5rem); line-height: 1; margin: 0; letter-spacing: -.02em; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 1.4rem; line-height: 1.2; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--display); font-weight: 700; font-size: 1.08rem; margin: 0; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.4rem; display: grid; gap: 1rem; }
+.meta { display: flex; justify-content: space-between; gap: 1rem; font-size: .85rem; color: var(--muted); }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--ink); }
+.then { margin: 0; padding: .7rem .9rem; border-left: 4px solid var(--then); background: var(--paper); border-radius: 0 8px 8px 0; max-width: 62ch; }
+.q { font-size: 1.15rem; font-weight: 600; margin: 0; text-wrap: balance; }
+.guess-row { display: flex; align-items: center; gap: 1rem; }
+.guess-row input { flex: 1; accent-color: var(--you); height: 2rem; }
+.guess-val { font-family: var(--display); font-weight: 900; font-size: 2rem; min-width: 5ch; text-align: right; color: var(--you); font-variant-numeric: tabular-nums; }
+.choices { display: grid; gap: .45rem; }
+.choices button { font: inherit; text-align: left; padding: .6rem .9rem; border-radius: 10px; border: 1px solid var(--muted); background: transparent; color: var(--ink); cursor: pointer; }
+.choices button[aria-pressed="true"] { border: 2px solid var(--ink); font-weight: 600; }
+.choices button.right { border: 2px solid var(--now); }
+.choices button:disabled { cursor: default; }
+.primary { font: inherit; font-weight: 600; padding: .65rem 1.2rem; border-radius: 10px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; }
+.linkish { font: inherit; font-size: .9rem; background: none; border: none; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.bars { display: grid; gap: .7rem; }
+.brow { display: grid; grid-template-columns: 10.5rem 1fr; gap: .6rem; align-items: center; }
+.brow .lab { font-size: .9rem; line-height: 1.25; }
+.track { position: relative; height: 1.9rem; background: var(--line); border-radius: 5px; overflow: hidden; }
+.seg { position: absolute; left: 0; top: 0; bottom: 0; }
+.val { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; font-weight: 700; font-size: .9rem; font-variant-numeric: tabular-nums; padding-left: .4rem; white-space: nowrap; }
+.unitnote { font-size: .78rem; color: var(--muted); margin: -.3rem 0 0; }
+.take { margin: 0; max-width: 62ch; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--body); }
+.prose p, .prose ol, .prose ul { margin: 0 0 .7rem; max-width: 64ch; }
+.prose li { margin-bottom: .4rem; }
+.notes { font-size: .88rem; color: var(--muted); }
+footer { font-size: .85rem; color: var(--muted); }
+.hidden { display: none !important; }
+@media (max-width: 560px) { .card { padding: 1.1rem; } .brow { grid-template-columns: 1fr; gap: .2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">By Gwen Sharp · <a href="https://x.com/gsharpokie">@gsharpokie</a></div>
+    <h1>Who Emits the Carbon?</h1>
+    <p class="lede">Which countries put the most carbon dioxide into the air? Does the answer change if you count per person, or add up history? And can a country’s economy grow while its emissions shrink? Make nine guesses, then see what the data show.</p>
+  </header>
+
+  <section class="card" id="quiz" aria-live="polite">
+    <div class="meta"><span id="counter"></span><button class="linkish" id="skip">Skip to all the answers</button></div>
+    <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+    <p class="then" id="thenText"></p>
+    <p class="q" id="qText"></p>
+    <div id="sliderBlock" class="hidden">
+      <div class="guess-row"><input type="range" id="slider" aria-label="Your guess"><output id="sv" class="guess-val" for="slider"></output></div>
+    </div>
+    <div class="choices hidden" id="choices"></div>
+    <div id="reveal" class="hidden" style="display:grid;gap:1rem">
+      <div class="bars" id="rbars"></div>
+      <p class="unitnote" id="runit"></p>
+      <p class="take" id="take"></p>
+    </div>
+    <div><button class="primary" id="lock">Lock in my guess</button><button class="primary hidden" id="next">Next question</button></div>
+  </section>
+
+  <section class="card hidden after chart" id="charts">
+    <h2>CO₂ emissions per person, 1950–2025</h2>
+    <div id="lineChart"></div>
+    <p class="unitnote" style="margin:0">Tonnes of CO₂ per person per year, from fossil fuels and industry. Counts emissions where they’re produced.</p>
+  </section>
+
+  <section class="card hidden after">
+    <h2>All nine answers</h2>
+    <div id="answers" style="display:grid;gap:.6rem"></div>
+  </section>
+
+  <section class="card prose hidden after">
+    <h2>The fuller picture</h2>
+    <p><strong>Three ways to count, three different rankings.</strong> China emits the most each year. Americans emit the most per person among large countries. And the U.S. has emitted the most in total since 1750. Each way of counting answers a different question: who emits now, whose lifestyles emit the most, and who did the most to put the CO₂ that’s already in the air there. Debates over who should cut how much often come down to which count people think matters most.</p>
+    <p><strong>How can emissions fall while an economy grows?</strong> Common explanations include changing how electricity is made (less coal; more natural gas, renewables, or nuclear), using energy more efficiently, and shifting toward service industries that use less energy than heavy manufacturing. Some of the drop came from moving factories overseas, which is why the consumption-based count matters. But in the 22 countries listed below, emissions fell even when imports are counted.</p>
+    <p><strong>The 22 countries.</strong> These countries of more than a million people cut both their production-based and their consumption-based CO₂ by at least 5% from 2005 to 2022 while their economies grew (after inflation): Austria, Bulgaria, Croatia, Denmark, Estonia, Finland, France, Germany, Hungary, Ireland, Italy, Japan, the Netherlands, Norway, Portugal, Romania, Slovakia, Spain, Sweden, Trinidad and Tobago, the United Kingdom, and the United States. Several more, including Canada and New Zealand, came close.</p>
+    <p><strong>Progress and how far there is to go.</strong> Fossil emissions worldwide grew about 20% from 2005 to 2015, and about 10% from 2015 to 2025. The Global Carbon Project projects a small drop of about 0.4% in 2026, partly from more solar and wind power and partly from an oil shock tied to the Iran conflict. It estimates that solar, wind, and electric vehicles now offset about two-thirds of the emissions that rising energy demand would otherwise add. But its researchers warn the shift isn’t yet fast enough for a lasting decline, and once deforestation and other land-use emissions are added, total CO₂ emissions are projected to hit a record in 2026.</p>
+    <p><strong>A very unequal footprint.</strong> The world’s low-income countries are home to about 9% of the world’s people but produced about half of 1% of its fossil CO₂ in 2025. The average person in those countries emitted about 0.3 tonnes, compared with 14.5 for the average American.</p>
+    <p><strong>Other fields to bring in.</strong> Economists study whether countries tend to pollute more as they industrialize and then less as they get richer, an idea called the environmental Kuznets curve, and how to price carbon. Political scientists study why cooperation on a shared problem is hard when the costs of acting fall on each country but the benefits are shared by all. Geographers and climate scientists study where the effects of warming fall, often on places that emitted little.</p>
+    <h3>Talk about it</h3>
+    <ol>
+      <li>Which guess was furthest off? Did you expect more or less progress than the data show?</li>
+      <li>Should a country be judged by its total emissions, its emissions per person, its emissions over history, or the emissions from the goods its people buy? Who benefits from each way of counting?</li>
+      <li>If a country’s emissions fall because it moved factories overseas, has it made progress? What would you need to know to decide?</li>
+      <li>China’s emissions per person are higher than the EU’s but far lower than the U.S.’s. How should that shape what each is expected to do?</li>
+      <li>Global emissions are still near record highs even though more than 20 countries have cut theirs. What would it take for the world total to fall?</li>
+    </ol>
+  </section>
+
+  <section class="notes prose hidden after">
+    <h3>About the data</h3>
+    <p>Emissions are carbon dioxide from burning fossil fuels and from industry (mainly cement), not other greenhouse gases or deforestation, from the Global Carbon Budget 2026 as compiled by Our World in Data (downloaded November 14, 2026). Most figures count emissions where they’re produced. Consumption-based figures (questions 7 and 8) instead count emissions from producing the goods and services a country’s people use, wherever they were made; those are available from 1990 to 2024. Economic growth uses GDP adjusted for inflation and living costs from the Maddison Project Database, which ends in 2022, so the comparisons of emissions and growth run from 2005 to 2022. The Global Carbon Project’s own headline totals count slightly differently from this dataset, so news reports may give slightly different global figures.</p>
+    <p><strong>Sources:</strong></p>
+    <ul>
+      <li>Global Carbon Project. 2026. <a href="https://globalcarbonbudget.org/">Global Carbon Budget 2026</a>.</li>
+      <li>Our World in Data. 2026. <a href="https://github.com/owid/co2-data">CO₂ and Greenhouse Gas Emissions dataset</a> (Global Carbon Budget 2026 release). See also <a href="https://ourworldindata.org/co2-and-greenhouse-gas-emissions">ourworldindata.org/co2-and-greenhouse-gas-emissions</a>.</li>
+      <li>Bolt, Jutta, and Jan Luiten van Zanden. 2024. Maddison Project Database 2023 (GDP), via Our World in Data.</li>
+      <li>Hausfather, Zeke, and Pierre Friedlingstein. 2026. <a href="https://www.carbonbrief.org/analysis-fossil-fuel-co2-emissions-set-to-dip-in-2026-as-iran-conflict-hits-oil-use">“Analysis: Fossil-Fuel CO₂ Emissions Set to Dip in 2026 as Iran Conflict Hits Oil Use.”</a> Carbon Brief, November 10.</li>
+      <li>University of Exeter. 2026. <a href="https://www.eurekalert.org/news-releases/1150611">“Fossil CO₂ Emissions Decrease in 2026.”</a> News release, November 10.</li>
+    </ul>
+    <h3>How to cite this page</h3>
+    <p>Sharp, Gwen. 2026. “Who Emits the Carbon?” <a href="https://gsharpokie.github.io/emissions/">https://gsharpokie.github.io/emissions/</a></p>
+    <p>Spot an error? <a href="https://github.com/gsharpokie/emissions/issues/new">Suggest a correction</a> (needs a free GitHub account).</p>
+  </section>
+
+  <footer>Created by Gwen Sharp (<a href="https://x.com/gsharpokie">@gsharpokie</a>). Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Emissions data: Global Carbon Project via Our World in Data (CC BY 4.0).</footer>
+</div>
+
+<script>
+// Data: Global Carbon Budget 2026 via Our World in Data (owid-co2-data.csv), GDP from Maddison Project Database 2023.
+// Each question: then (shown first), q, unit, scale [min, max] for the bars, rows(guess) for the reveal, take(guess) for the text.
+// Slider questions also have min, max, step, start, ans, near. Row format: [label, value, color, text-override].
+const T = { unit: " t", scale: [0, 30], note: "Tonnes of CO₂ per person per year." };
+const P = { unit: "%", scale: [0, 50], note: "" };
+const Q = [
+  { type: "slider", ...P, min: 0, max: 50, step: 1, start: 25, ans: 32, near: 3,
+    then: "In 2005, China and the United States each produced about a fifth of the world’s fossil CO₂ emissions (20% and 21%).",
+    q: "In 2025, what percentage of the world’s CO₂ emissions came from China?",
+    rows: g => [["Your guess", g, "var(--you)"], ["China, 2005", 20, "var(--then)"], ["China, 2025", 32, "var(--now)"], ["U.S., 2005", 21, "var(--then)"], ["U.S., 2025", 13, "var(--now)"], ["India, 2025", 8, "var(--alt)"], ["EU, 2025", 6, "var(--alt)"]],
+    take: g => `${miss(g, 32, " points", 3)} About <strong>32%</strong>, almost a third, and more than twice the U.S. share of 13%. China passed the U.S. as the largest emitter in the mid-2000s.` },
+  { type: "choice", ...T,
+    then: "China emits more than twice as much CO₂ in total as the U.S. But China also has about four times as many people.",
+    q: "Per person, who emitted more in 2025: the average person in China, or the average person in the European Union?",
+    opts: ["The EU, by a lot", "About the same", "China"], a: 2,
+    rows: () => [["United States", 14.5, "var(--now)"], ["China", 8.8, "var(--now)"], ["European Union", 5.4, "var(--now)"], ["World average", 4.7, "var(--alt)"], ["India", 2.2, "var(--now)"], ["Low-income countries", 0.3, "var(--now)"]],
+    take: () => `The average person in China emitted <strong>8.8 tonnes</strong> in 2025, more than the EU average of 5.4 and nearly double the world average. In 2005 the two were reversed: 4.5 tonnes in China, 8.6 in the EU. The average American still emits much more, 14.5 tonnes.` },
+  { type: "slider", ...{ unit: "%", scale: [0, 40], note: "" }, min: 0, max: 40, step: 1, start: 20, ans: 23, near: 3,
+    then: "CO₂ stays in the atmosphere for centuries, so past emissions still affect the climate today.",
+    q: "Of all the fossil CO₂ emitted since 1750, what percentage came from the United States?",
+    rows: g => [["Your guess", g, "var(--you)"], ["United States", 23.3, "var(--now)"], ["European Union", 16.1, "var(--alt)"], ["China", 15.8, "var(--alt)"], ["Russia", 6.5, "var(--alt)"], ["United Kingdom", 4.3, "var(--alt)"], ["India", 3.7, "var(--alt)"], ["All of Africa", 3.0, "var(--alt)", "3.0%"]],
+    take: g => `${miss(g, 23, " points", 3)} About <strong>23%</strong>, more than any other country. The U.K., where industrialization started, has produced 4.3% of the total despite having less than 1% of the world’s people today. All of Africa: 3%.` },
+  { type: "slider", ...T, min: 0, max: 30, step: .5, start: 10, ans: 14.5, near: 1,
+    then: "U.S. emissions per person peaked in 1973, at 21.5 tonnes of CO₂ per person per year.",
+    q: "In 2025, how many tonnes per person did the U.S. emit?",
+    rows: g => [["Your guess", g, "var(--you)"], ["1973 (peak)", 21.5, "var(--then)"], ["2005", 20.7, "var(--then)"], ["2025", 14.5, "var(--now)"]],
+    take: g => `${miss(g, 14.5, " tonnes", 1)} <strong>14.5 tonnes</strong>, down about a third from the peak and about where it was around 1940. Most of the drop came after 2005.` },
+  { type: "slider", ...{ unit: " t", scale: [0, 15], note: "Tonnes of CO₂ per person per year." }, min: 0, max: 15, step: .5, start: 8, ans: 4.6, near: .5,
+    then: "The United Kingdom, where the Industrial Revolution began, emitted 12 tonnes of CO₂ per person in 1971.",
+    q: "In 2025, how many tonnes per person did the U.K. emit?",
+    rows: g => [["Your guess", g, "var(--you)"], ["1971 (peak)", 12.0, "var(--then)", "12.0 t"], ["2005", 9.4, "var(--then)"], ["2025", 4.6, "var(--now)"]],
+    take: g => `${miss(g, 4.6, " tonnes", .5)} <strong>4.6 tonnes</strong>, close to what it was in the 1850s and below the world average. The U.K. closed its last coal power plant in 2024.` },
+  { type: "choice", unit: "%", scale: [-60, 60], note: "Percentage change, 2005 to 2022.",
+    then: "From 2005 to 2022, the U.S. economy grew by about a third, after adjusting for inflation.",
+    q: "What happened to U.S. CO₂ emissions over the same years?", aq: "The U.S. economy grew about a third from 2005 to 2022. What happened to U.S. CO₂ emissions?",
+    opts: ["They grew faster than the economy", "They grew, but more slowly than the economy", "They stayed about the same", "They fell"], a: 3,
+    rows: () => [["U.S. economy (GDP)", 33, "var(--alt)", "+33%"], ["U.S. CO₂ emissions", -17, "var(--now)", "−17%"]],
+    take: () => `They <strong>fell 17%</strong> while the economy grew 33%. Economists call this “decoupling”: economic growth no longer brings more emissions with it. Much of the drop came from power plants switching from coal to natural gas and renewables.` },
+  { type: "choice", unit: "", scale: [0, 30], note: "Number of countries with more than 1 million people, 2005 to 2022.",
+    then: "Some argue that rich countries only cut emissions by moving factories abroad, so the emissions just happen somewhere else. To check, researchers also count “consumption-based” emissions: the CO₂ from making everything a country’s people buy, including imports.",
+    q: "From 2005 to 2022, how many countries grew their economies while cutting both kinds of emissions by at least 5%?",
+    opts: ["None", "1 to 5", "6 to 15", "More than 20"], a: 3,
+    rows: () => [["Countries", 22, "var(--now)", "22 countries"]],
+    take: () => `<strong>22 countries</strong>, mostly in Europe, plus the U.S. and Japan. The full list is in “The fuller picture” below. Even counting imports, these countries cut emissions while growing.` },
+  { type: "choice", ...{ unit: " t", scale: [0, 16], note: "Tonnes of CO₂ per person per year." },
+    then: "Counted where it’s produced, the U.K. emitted 4.6 tonnes of CO₂ per person in 2024.",
+    q: "Counting the CO₂ from making everything Britons buy, including imports, how do U.K. emissions per person compare?", aq: "How do U.K. emissions per person compare when you count the CO₂ from making everything Britons buy, including imports?",
+    opts: ["Lower: Britain exports more than it imports", "About the same", "Higher: imports carry a lot of emissions"], a: 2,
+    rows: () => [["Produced in U.K., 2024", 4.6, "var(--then)"], ["Consumed in U.K., 2024", 7.1, "var(--now)"], ["Consumed in U.K., 2005", 12.6, "var(--alt)"]],
+    take: () => `<strong>Higher</strong>: 7.1 tonnes per person, about half again as much. Many rich countries “import” emissions this way. But the U.K.’s consumption-based emissions also fell, from 12.6 tonnes per person in 2005.` },
+  { type: "choice", ...{ unit: "%", scale: [0, 25], note: "Growth in world fossil CO₂ emissions over each decade." },
+    then: "From 2005 to 2015, the world’s fossil CO₂ emissions grew about 20%.",
+    q: "What happened from 2015 to 2025?", aq: "World fossil CO₂ emissions grew about 20% from 2005 to 2015. What happened from 2015 to 2025?",
+    opts: ["Emissions fell", "Emissions stayed about flat", "Emissions kept rising, but more slowly", "Emissions rose faster than before"], a: 2,
+    rows: () => [["2005 to 2015", 20, "var(--then)", "+20%"], ["2015 to 2025", 10, "var(--now)", "+10%"]],
+    take: () => `They <strong>kept rising, but about half as fast</strong>, about 10% over the decade, reaching a record in 2025. The Global Carbon Project projects a small dip, about 0.4%, in 2026.` }
+];
+const SERIES = {"United States":[16.5,16.8,16.1,16.2,15.3,16.5,17.0,16.6,15.8,16.1,16.2,15.9,16.3,16.9,17.4,17.8,18.4,18.8,19.3,20.0,20.3,20.1,20.8,21.5,20.6,19.5,20.7,21.1,21.5,21.4,20.4,19.4,18.2,18.2,18.6,18.5,18.3,19.0,19.6,19.8,20.2,19.8,20.0,20.1,20.2,20.2,20.7,20.8,20.8,20.8,21.4,20.8,20.7,20.7,20.9,20.7,20.2,20.3,19.4,17.8,18.2,17.6,16.8,17.1,17.1,16.4,15.9,15.6,16.0,15.5,13.8,14.8,14.8,14.3,14.2,14.5],"United Kingdom":[10.0,10.8,10.4,10.6,10.8,11.3,11.2,11.0,10.7,10.4,11.1,11.1,11.2,11.3,11.3,11.5,11.4,10.9,11.2,11.5,11.9,12.0,11.7,12.0,11.2,10.9,10.9,10.9,10.9,11.6,10.3,10.1,9.9,9.8,9.4,10.0,10.1,10.2,10.1,10.3,10.5,10.6,10.3,10.0,9.9,9.7,10.1,9.6,9.7,9.6,9.6,9.8,9.4,9.6,9.5,9.4,9.3,9.1,8.8,7.9,8.1,7.4,7.6,7.4,6.8,6.5,6.1,5.8,5.7,5.4,4.8,5.1,4.5,4.5,4.6,4.6],"China":[0.1,0.2,0.2,0.2,0.3,0.3,0.3,0.4,0.8,1.1,1.2,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.8,1.0,1.1,1.1,1.1,1.1,1.3,1.3,1.4,1.5,1.6,1.5,1.5,1.6,1.6,1.8,1.9,1.9,2.0,2.1,2.1,2.2,2.2,2.3,2.4,2.6,2.8,2.9,2.8,2.7,2.8,2.9,2.9,3.2,3.8,4.0,4.5,5.0,5.3,5.7,5.9,6.4,7.1,7.2,7.3,7.2,7.1,7.0,7.2,7.4,7.5,7.6,7.9,8.2,8.7,8.7,8.8],"India":[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.5,0.5,0.5,0.5,0.5,0.6,0.6,0.6,0.7,0.7,0.7,0.7,0.7,0.8,0.8,0.8,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,1.0,1.1,1.2,1.2,1.3,1.4,1.4,1.5,1.5,1.6,1.7,1.8,1.8,1.9,1.9,1.7,1.9,2.0,2.1,2.2,2.2],"European Union (27)":[3.9,4.3,4.5,4.5,4.8,5.1,5.4,5.5,5.5,5.5,5.9,6.1,6.5,6.9,7.2,7.2,7.4,7.5,8.0,8.5,8.7,8.8,9.1,9.5,9.4,9.1,9.8,9.6,9.9,10.2,10.0,9.5,9.2,9.1,9.2,9.3,9.2,9.3,9.2,9.3,9.2,9.0,8.7,8.5,8.4,8.5,8.7,8.6,8.5,8.4,8.4,8.5,8.5,8.7,8.7,8.6,8.6,8.5,8.2,7.6,7.8,7.5,7.3,7.2,6.8,7.0,6.9,7.0,6.8,6.5,5.8,6.2,6.1,5.5,5.4,5.4],"World":[2.4,2.5,2.5,2.5,2.5,2.7,2.8,2.9,2.9,3.0,3.1,3.1,3.1,3.2,3.3,3.4,3.5,3.5,3.7,3.8,4.0,4.0,4.2,4.3,4.2,4.1,4.3,4.3,4.4,4.4,4.3,4.1,4.0,4.0,4.0,4.1,4.1,4.2,4.3,4.2,4.3,4.3,4.1,4.1,4.0,4.1,4.2,4.1,4.0,4.1,4.1,4.1,4.1,4.3,4.4,4.5,4.6,4.7,4.7,4.5,4.8,4.8,4.8,4.8,4.8,4.8,4.7,4.7,4.8,4.7,4.5,4.6,4.7,4.7,4.7,4.7]};
+const $ = id => document.getElementById(id);
+const guesses = new Array(Q.length).fill(null);
+let idx = 0, choice = null;
+const num = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
+const fmt = (v, q) => num(v) + (q.unit === "%" ? "%" : q.unit);
+function miss(g, a, word, near) {
+  if (g == null) return "";
+  const d = Math.abs(g - a);
+  if (d <= near) return "<strong>Very close.</strong>";
+  return `You guessed ${num(g)}, ${num(d)}${word} ${g > a ? "too high" : "too low"}.`;
+}
+function rowHTML(r, q) {
+  const [lab, v, color, text] = r;
+  const [lo, hi] = q.scale;
+  if (v == null) return `<div class="brow"><span class="lab">${lab}</span><div class="track" role="img" aria-label="${lab}: no guess"><div class="val" style="left:0;color:var(--muted)">No guess</div></div></div>`;
+  const shown = text || fmt(v, q);
+  let left = 0, w;
+  if (lo < 0) { const z = -lo / (hi - lo) * 100; w = Math.abs(v) / (hi - lo) * 100; left = v < 0 ? z - w : z; }
+  else w = Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
+  const end = left + w;
+  const label = v < 0 ? `<div class="val" style="left:${end}%">${shown}</div>`
+    : end > 80 ? `<div class="val" style="right:${100 - end}%;padding:0 .45rem;color:var(--onbar)">${shown}</div>`
+    : `<div class="val" style="left:${end}%">${shown}</div>`;
+  const zero = lo < 0 ? `<div class="seg" style="left:${-lo / (hi - lo) * 100}%;width:2px;background:var(--muted)"></div>` : "";
+  return `<div class="brow"><span class="lab">${lab}</span><div class="track" role="img" aria-label="${lab}: ${shown}"><div class="seg" style="left:${left}%;width:${w}%;background:${color}"></div>${zero}${label}</div></div>`;
+}
+function render() {
+  if (idx >= Q.length) return finish();
+  const q = Q[idx]; choice = null;
+  $("counter").textContent = `Question ${idx + 1} of ${Q.length}`;
+  $("bar").style.width = (idx / Q.length * 100) + "%";
+  $("thenText").innerHTML = "<strong>Start here:</strong> " + q.then;
+  $("qText").textContent = q.q;
+  $("reveal").classList.add("hidden"); $("next").classList.add("hidden"); $("lock").classList.remove("hidden");
+  $("next").textContent = idx === Q.length - 1 ? "See all the answers" : "Next question";
+  if (q.type === "slider") {
+    $("sliderBlock").classList.remove("hidden"); $("choices").classList.add("hidden");
+    const s = $("slider"); s.min = q.min; s.max = q.max; s.step = q.step; s.value = q.start; s.disabled = false;
+    s.setAttribute("aria-label", "Your guess, in " + (q.unit === "%" ? "percent" : "tonnes per person"));
+    $("sv").textContent = fmt(+s.value, q); $("lock").disabled = false;
+  } else {
+    $("sliderBlock").classList.add("hidden"); $("choices").classList.remove("hidden");
+    $("choices").innerHTML = q.opts.map((o, i) => `<button data-i="${i}" aria-pressed="false">${o}</button>`).join("");
+    document.querySelectorAll("#choices button").forEach(b => b.addEventListener("click", () => {
+      choice = +b.dataset.i; document.querySelectorAll("#choices button").forEach(o => o.setAttribute("aria-pressed", o === b)); $("lock").disabled = false;
+    }));
+    $("lock").disabled = true;
+  }
+}
+function reveal() {
+  const q = Q[idx];
+  if (q.type === "slider") { guesses[idx] = +$("slider").value; $("slider").disabled = true; }
+  else { guesses[idx] = choice; document.querySelectorAll("#choices button").forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("right"); }); }
+  $("rbars").innerHTML = q.rows(guesses[idx]).map(r => rowHTML(r, q)).join("");
+  $("runit").textContent = q.note || "";
+  let t = q.take(guesses[idx]);
+  if (q.type === "choice") t = (choice === q.a ? "<strong>Right.</strong> " : "<strong>Not quite.</strong> ") + t;
+  $("take").innerHTML = t;
+  $("reveal").classList.remove("hidden"); $("lock").classList.add("hidden"); $("next").classList.remove("hidden"); $("next").focus();
+}
+function lineChart() {
+  const W = 700, H = 380, L = 40, R = 120, Tp = 14, B = 34, y0 = 1950, y1 = 2025, max = 24;
+  const x = y => L + (y - y0) / (y1 - y0) * (W - L - R), y = v => Tp + (1 - v / max) * (H - Tp - B);
+  const lines = [["United States", "U.S.", "var(--c-us)"], ["United Kingdom", "U.K.", "var(--c-uk)"], ["European Union (27)", "EU", "var(--c-eu)"], ["China", "China", "var(--c-cn)"], ["World", "World", "var(--c-w)"], ["India", "India", "var(--c-in)"]];
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">CO₂ emissions per person, 1950 to 2025</title><desc id="lcD">U.S. peaked at 21.5 tonnes in 1973 and fell to 14.5 in 2025. U.K. fell from 12.0 in 1971 to 4.6. EU fell from 10.2 in 1979 to 5.4. China rose from 0.1 to 8.8. India rose to 2.2. World average rose from 2.4 to 4.7.</desc>`;
+  for (let v = 0; v <= max; v += 4) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${v}</text>`;
+  for (let yr = 1950; yr <= 2020; yr += 10) s += `<text x="${x(yr)}" y="${H - 12}" text-anchor="middle" font-size="12" fill="var(--muted)">${yr}</text>`;
+  const ends = [];
+  for (const [key, lab, col] of lines) {
+    const d = SERIES[key].map((v, i) => `${i ? "L" : "M"}${x(y0 + i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+    s += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${key === "World" ? 2 : 2.6}" ${key === "World" ? 'stroke-dasharray="5 4"' : ""}/>`;
+    const last = SERIES[key][SERIES[key].length - 1]; ends.push([y(last), `${lab} ${last.toFixed(1)}`, col]);
+  }
+  ends.sort((a, b) => a[0] - b[0]);
+  for (let i = 1; i < ends.length; i++) if (ends[i][0] - ends[i - 1][0] < 15) ends[i][0] = ends[i - 1][0] + 15;
+  for (const [yy, t, col] of ends) s += `<text x="${W - R + 6}" y="${yy + 4}" font-size="13" font-weight="700" fill="${col}">${t}</text>`;
+  return s + "</svg>";
+}
+function finish() {
+  $("quiz").classList.add("hidden");
+  document.querySelectorAll(".after").forEach(e => e.classList.remove("hidden"));
+  $("lineChart").innerHTML = lineChart();
+  $("answers").innerHTML = Q.map((q, i) => {
+    const rows = q.rows(guesses[i]).filter(r => !(r[0] === "Your guess" && guesses[i] == null));
+    return `<h3 style="font-size:1rem;margin-top:.4rem">${i + 1}. ${q.aq || q.q}</h3><div class="bars">${rows.map(r => rowHTML(r, q)).join("")}</div>${q.note ? `<p class="unitnote" style="margin:0">${q.note}</p>` : ""}`;
+  }).join("");
+  document.querySelector(".after").scrollIntoView({ block: "start" });
+}
+$("slider").addEventListener("input", e => $("sv").textContent = fmt(+e.target.value, Q[idx]));
+$("lock").addEventListener("click", reveal);
+$("next").addEventListener("click", () => { idx++; render(); });
+$("skip").addEventListener("click", () => { idx = Q.length; finish(); });
+if (location.hash === "#answers" || location.hash === "#charts") { idx = Q.length; finish(); } else render();
+</script>
+</body>
+</html>
