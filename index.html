@@ -85,6 +85,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .chart svg { width: 100%; height: auto; display: block; }
 .chart text { font-family: var(--body); }
 .chart svg { touch-action: pan-y; cursor: crosshair; }
+.views { display: flex; flex-wrap: wrap; gap: .4rem; }
+.views button { font: inherit; font-size: .92rem; padding: .4rem .8rem; border-radius: 999px; border: 1px solid var(--muted); background: transparent; color: var(--ink); cursor: pointer; }
+.views button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 600; }
 .yearpick { display: flex; align-items: center; gap: .8rem; font-size: .9rem; color: var(--muted); }
 .yearpick input { flex: 1; accent-color: var(--ink); height: 2rem; }
 .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr)); gap: .45rem; }
@@ -125,11 +128,13 @@ footer { font-size: .85rem; color: var(--muted); }
   </section>
 
   <section class="card hidden after chart" id="charts">
-    <h2>CO₂ emissions per person, 1950–2025</h2>
+    <h2 id="chartTitle">CO₂ emissions per person, 1950–2025</h2>
+    <div class="views" id="views" role="group" aria-label="Choose what the chart measures"></div>
     <div id="lineChart"></div>
     <div class="yearpick"><label for="yr">Pick a year</label><input type="range" id="yr" min="1950" max="2025" value="2025"></div>
     <div class="readout" id="readout" aria-live="polite"></div>
-    <p class="unitnote" style="margin:0">Metric tons of CO₂ per person per year (one metric ton is about 2,200 pounds), from fossil fuels and industry. Counts emissions where they’re produced. Move across the chart or drag the slider to see each year.</p>
+    <p class="unitnote" id="chartNote" style="margin:0"></p>
+    <p class="unitnote" style="margin:0">All four views count CO₂ from fossil fuels and industry, where it’s produced. Move across the chart or drag the slider to see each year.</p>
   </section>
 
   <section class="card hidden after">
@@ -139,7 +144,7 @@ footer { font-size: .85rem; color: var(--muted); }
 
   <section class="card prose hidden after">
     <h2>The fuller picture</h2>
-    <p><strong>Three ways to count, three different rankings.</strong> China emits the most each year. Americans emit the most per person among large countries. And the U.S. has emitted the most in total since 1750. Each way of counting answers a different question: who emits now, whose lifestyles emit the most, and who did the most to put the CO₂ that’s already in the air there. Debates over who should cut how much often come down to which count people think matters most.</p>
+    <p><strong>Three ways to count, three different rankings.</strong> (Switch the chart above between views to see them.) China emits the most each year. Americans emit the most per person among large countries. And the U.S. has emitted the most in total since 1750. Each way of counting answers a different question: who emits now, whose lifestyles emit the most, and who did the most to put the CO₂ that’s already in the air there. Debates over who should cut how much often come down to which count people think matters most.</p>
     <p><strong>How can emissions fall while an economy grows?</strong> Common explanations include changing how electricity is made (less coal; more natural gas, renewables, or nuclear), using energy more efficiently, and shifting toward service industries that use less energy than heavy manufacturing. Some of the drop came from moving factories overseas, which is why the consumption-based count matters. But in the 22 countries listed below, emissions fell even when imports are counted.</p>
     <p><strong>The 22 countries.</strong> These countries of more than a million people cut both their production-based and their consumption-based CO₂ by at least 5% from 2005 to 2022 while their economies grew (after inflation): Austria, Bulgaria, Croatia, Denmark, Estonia, Finland, France, Germany, Hungary, Ireland, Italy, Japan, the Netherlands, Norway, Portugal, Romania, Slovakia, Spain, Sweden, Trinidad and Tobago, the United Kingdom, and the United States. Several more, including Canada and New Zealand, came close.</p>
     <p><strong>Progress and how far there is to go.</strong> Fossil emissions worldwide grew about 20% from 2005 to 2015, and about 10% from 2015 to 2025. The Global Carbon Project projects a small drop of about 0.4% in 2026, partly from more solar and wind power and partly from an oil shock tied to the Iran conflict. It estimates that solar, wind, and electric vehicles now offset about two-thirds of the emissions that rising energy demand would otherwise add. But its researchers warn the shift isn’t yet fast enough for a lasting decline, and once deforestation and other land-use emissions are added, total CO₂ emissions are projected to hit a record in 2026.</p>
@@ -232,7 +237,7 @@ const Q = [
     rows: () => [["2005 to 2015", 20, "var(--then)", "+20%"], ["2015 to 2025", 10, "var(--now)", "+10%"]],
     take: () => `They <strong>kept rising, but about half as fast</strong>, about 10% over the decade, reaching a record in 2025. The Global Carbon Project projects a small dip, about 0.4%, in 2026.` }
 ];
-const SERIES = {"United States":[16.5,16.8,16.1,16.2,15.3,16.5,17.0,16.6,15.8,16.1,16.2,15.9,16.3,16.9,17.4,17.8,18.4,18.8,19.3,20.0,20.3,20.1,20.8,21.5,20.6,19.5,20.7,21.1,21.5,21.4,20.4,19.4,18.2,18.2,18.6,18.5,18.3,19.0,19.6,19.8,20.2,19.8,20.0,20.1,20.2,20.2,20.7,20.8,20.8,20.8,21.4,20.8,20.7,20.7,20.9,20.7,20.2,20.3,19.4,17.8,18.2,17.6,16.8,17.1,17.1,16.4,15.9,15.6,16.0,15.5,13.8,14.8,14.8,14.3,14.2,14.5],"United Kingdom":[10.0,10.8,10.4,10.6,10.8,11.3,11.2,11.0,10.7,10.4,11.1,11.1,11.2,11.3,11.3,11.5,11.4,10.9,11.2,11.5,11.9,12.0,11.7,12.0,11.2,10.9,10.9,10.9,10.9,11.6,10.3,10.1,9.9,9.8,9.4,10.0,10.1,10.2,10.1,10.3,10.5,10.6,10.3,10.0,9.9,9.7,10.1,9.6,9.7,9.6,9.6,9.8,9.4,9.6,9.5,9.4,9.3,9.1,8.8,7.9,8.1,7.4,7.6,7.4,6.8,6.5,6.1,5.8,5.7,5.4,4.8,5.1,4.5,4.5,4.6,4.6],"China":[0.1,0.2,0.2,0.2,0.3,0.3,0.3,0.4,0.8,1.1,1.2,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.8,1.0,1.1,1.1,1.1,1.1,1.3,1.3,1.4,1.5,1.6,1.5,1.5,1.6,1.6,1.8,1.9,1.9,2.0,2.1,2.1,2.2,2.2,2.3,2.4,2.6,2.8,2.9,2.8,2.7,2.8,2.9,2.9,3.2,3.8,4.0,4.5,5.0,5.3,5.7,5.9,6.4,7.1,7.2,7.3,7.2,7.1,7.0,7.2,7.4,7.5,7.6,7.9,8.2,8.7,8.7,8.8],"India":[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.5,0.5,0.5,0.5,0.5,0.6,0.6,0.6,0.7,0.7,0.7,0.7,0.7,0.8,0.8,0.8,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,1.0,1.1,1.2,1.2,1.3,1.4,1.4,1.5,1.5,1.6,1.7,1.8,1.8,1.9,1.9,1.7,1.9,2.0,2.1,2.2,2.2],"European Union (27)":[3.9,4.3,4.5,4.5,4.8,5.1,5.4,5.5,5.5,5.5,5.9,6.1,6.5,6.9,7.2,7.2,7.4,7.5,8.0,8.5,8.7,8.8,9.1,9.5,9.4,9.1,9.8,9.6,9.9,10.2,10.0,9.5,9.2,9.1,9.2,9.3,9.2,9.3,9.2,9.3,9.2,9.0,8.7,8.5,8.4,8.5,8.7,8.6,8.5,8.4,8.4,8.5,8.5,8.7,8.7,8.6,8.6,8.5,8.2,7.6,7.8,7.5,7.3,7.2,6.8,7.0,6.9,7.0,6.8,6.5,5.8,6.2,6.1,5.5,5.4,5.4],"World":[2.4,2.5,2.5,2.5,2.5,2.7,2.8,2.9,2.9,3.0,3.1,3.1,3.1,3.2,3.3,3.4,3.5,3.5,3.7,3.8,4.0,4.0,4.2,4.3,4.2,4.1,4.3,4.3,4.4,4.4,4.3,4.1,4.0,4.0,4.0,4.1,4.1,4.2,4.3,4.2,4.3,4.3,4.1,4.1,4.0,4.1,4.2,4.1,4.0,4.1,4.1,4.1,4.1,4.3,4.4,4.5,4.6,4.7,4.7,4.5,4.8,4.8,4.8,4.8,4.8,4.8,4.7,4.7,4.8,4.7,4.5,4.6,4.7,4.7,4.7,4.7]};
+const DATA = {"pc":{"United States":[16.5,16.8,16.1,16.3,15.3,16.5,17.0,16.6,15.8,16.1,16.2,15.9,16.3,16.9,17.4,17.7,18.4,18.8,19.3,20.0,20.3,20.1,20.8,21.5,20.6,19.5,20.7,21.0,21.5,21.4,20.4,19.4,18.2,18.2,18.6,18.5,18.3,19.0,19.6,19.8,20.2,19.8,20.0,20.1,20.2,20.2,20.7,20.8,20.8,20.8,21.4,20.8,20.7,20.7,20.9,20.7,20.2,20.3,19.4,17.8,18.2,17.6,16.8,17.1,17.1,16.5,15.9,15.6,16.0,15.5,13.8,14.8,14.8,14.3,14.2,14.5],"United Kingdom":[10.0,10.8,10.4,10.6,10.8,11.3,11.2,11.0,10.7,10.4,11.1,11.1,11.2,11.3,11.3,11.5,11.4,10.9,11.2,11.5,11.9,12.0,11.7,12.0,11.2,10.9,10.9,10.9,10.9,11.6,10.3,10.0,9.9,9.8,9.4,10.0,10.1,10.2,10.1,10.3,10.5,10.6,10.3,10.0,9.9,9.7,10.1,9.6,9.7,9.5,9.6,9.7,9.4,9.6,9.5,9.4,9.3,9.1,8.8,7.9,8.1,7.4,7.6,7.4,6.8,6.5,6.1,5.8,5.7,5.4,4.8,5.1,4.6,4.5,4.6,4.6],"China":[0.1,0.2,0.2,0.2,0.3,0.3,0.3,0.4,0.8,1.1,1.2,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.8,1.0,1.1,1.1,1.1,1.1,1.3,1.3,1.4,1.5,1.6,1.5,1.5,1.6,1.6,1.7,1.9,1.9,2.0,2.2,2.2,2.2,2.2,2.3,2.4,2.6,2.8,2.9,2.8,2.7,2.8,2.9,2.9,3.2,3.8,4.0,4.5,4.9,5.3,5.6,5.9,6.4,7.1,7.2,7.3,7.2,7.1,7.0,7.1,7.4,7.5,7.6,7.9,8.2,8.6,8.7,8.8],"India":[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.5,0.5,0.5,0.5,0.5,0.5,0.6,0.6,0.6,0.7,0.7,0.7,0.7,0.8,0.8,0.8,0.9,0.9,0.9,0.9,0.9,0.9,0.9,1.0,1.0,1.1,1.2,1.2,1.3,1.4,1.4,1.5,1.5,1.6,1.7,1.7,1.8,1.9,1.9,1.7,1.9,2.0,2.1,2.2,2.2],"European Union (27)":[3.9,4.3,4.5,4.5,4.8,5.1,5.4,5.5,5.5,5.5,5.9,6.1,6.5,6.9,7.2,7.2,7.4,7.5,8.0,8.5,8.7,8.8,9.1,9.5,9.4,9.1,9.8,9.6,9.9,10.2,10.0,9.5,9.2,9.1,9.2,9.3,9.2,9.3,9.2,9.3,9.2,9.0,8.7,8.5,8.4,8.5,8.7,8.6,8.5,8.4,8.4,8.5,8.5,8.7,8.7,8.6,8.6,8.5,8.2,7.6,7.8,7.5,7.3,7.2,6.8,6.9,6.9,7.0,6.8,6.5,5.8,6.2,6.1,5.5,5.4,5.4],"World":[2.4,2.5,2.5,2.5,2.5,2.7,2.8,2.9,2.9,3.0,3.1,3.1,3.1,3.2,3.3,3.4,3.5,3.5,3.7,3.8,4.0,4.1,4.2,4.3,4.2,4.1,4.3,4.3,4.4,4.4,4.3,4.1,4.0,4.0,4.0,4.1,4.1,4.2,4.3,4.2,4.3,4.3,4.1,4.1,4.1,4.1,4.2,4.1,4.1,4.1,4.1,4.1,4.1,4.3,4.4,4.5,4.6,4.7,4.7,4.5,4.7,4.9,4.8,4.8,4.8,4.8,4.7,4.7,4.8,4.7,4.5,4.6,4.7,4.7,4.7,4.7]},"total":{"United States":[2.55,2.63,2.56,2.62,2.5,2.74,2.87,2.85,2.76,2.85,2.92,2.92,3.04,3.2,3.35,3.47,3.65,3.77,3.91,4.11,4.21,4.24,4.44,4.63,4.46,4.28,4.57,4.7,4.85,4.86,4.68,4.51,4.28,4.31,4.45,4.47,4.47,4.67,4.87,4.96,5.13,5.07,5.18,5.28,5.37,5.43,5.6,5.68,5.74,5.8,6.02,5.9,5.94,6.0,6.11,6.13,6.05,6.12,5.92,5.48,5.66,5.53,5.33,5.47,5.53,5.37,5.25,5.19,5.36,5.24,4.69,5.02,5.07,4.92,4.91,5.04],"United Kingdom":[0.5,0.54,0.53,0.54,0.55,0.58,0.57,0.57,0.55,0.54,0.58,0.59,0.6,0.61,0.61,0.63,0.62,0.6,0.62,0.64,0.66,0.67,0.66,0.67,0.63,0.61,0.61,0.62,0.61,0.65,0.58,0.57,0.55,0.55,0.53,0.56,0.57,0.58,0.58,0.59,0.6,0.61,0.59,0.58,0.57,0.57,0.59,0.56,0.57,0.56,0.57,0.58,0.56,0.57,0.57,0.57,0.57,0.56,0.54,0.49,0.51,0.47,0.49,0.48,0.44,0.42,0.4,0.39,0.38,0.36,0.33,0.34,0.31,0.31,0.32,0.32],"China":[0.08,0.1,0.13,0.13,0.16,0.19,0.22,0.26,0.52,0.72,0.8,0.57,0.46,0.46,0.46,0.5,0.55,0.46,0.49,0.6,0.8,0.9,0.96,1.0,1.02,1.17,1.21,1.32,1.47,1.51,1.48,1.46,1.59,1.68,1.83,1.98,2.08,2.23,2.4,2.44,2.49,2.62,2.74,2.92,3.1,3.36,3.51,3.53,3.37,3.56,3.66,3.74,4.12,4.86,5.24,5.91,6.52,7.02,7.53,7.93,8.69,9.6,9.85,10.02,10.05,9.94,9.84,10.1,10.44,10.67,10.87,11.3,11.7,12.3,12.4,12.42],"India":[0.06,0.06,0.07,0.07,0.07,0.08,0.08,0.09,0.1,0.1,0.11,0.12,0.13,0.14,0.14,0.15,0.16,0.16,0.18,0.18,0.19,0.2,0.21,0.21,0.22,0.24,0.25,0.27,0.27,0.28,0.3,0.32,0.33,0.36,0.37,0.4,0.43,0.46,0.5,0.55,0.58,0.62,0.66,0.68,0.72,0.77,0.83,0.86,0.88,0.94,0.96,0.97,0.99,1.02,1.09,1.18,1.29,1.39,1.49,1.61,1.68,1.77,1.93,2.0,2.15,2.23,2.35,2.42,2.59,2.61,2.42,2.67,2.82,3.05,3.18,3.2],"European Union (27)":[1.28,1.43,1.49,1.51,1.61,1.74,1.86,1.92,1.91,1.94,2.1,2.2,2.36,2.51,2.65,2.68,2.77,2.84,3.03,3.23,3.33,3.42,3.55,3.73,3.71,3.62,3.9,3.86,3.99,4.11,4.06,3.87,3.77,3.75,3.79,3.84,3.83,3.87,3.84,3.88,3.87,3.8,3.68,3.61,3.59,3.63,3.72,3.65,3.64,3.59,3.6,3.66,3.66,3.74,3.75,3.73,3.75,3.7,3.61,3.33,3.42,3.32,3.25,3.17,3.03,3.08,3.09,3.11,3.04,2.9,2.62,2.79,2.73,2.47,2.41,2.41],"World":[5.92,6.38,6.46,6.64,6.78,7.43,7.91,8.17,8.4,8.85,9.38,9.42,9.76,10.31,10.88,11.36,11.92,12.3,12.98,13.85,14.69,15.28,15.99,16.86,16.77,16.72,17.72,18.21,18.88,19.37,19.23,18.73,18.58,18.79,19.36,20.05,20.35,21.1,21.93,22.24,22.78,23.24,22.55,22.78,23.01,23.56,24.27,24.43,24.34,24.85,25.51,25.68,26.25,27.64,28.61,29.63,30.57,31.52,32.05,31.51,33.32,34.51,34.92,35.27,35.52,35.49,35.49,36.07,36.86,37.06,35.1,36.89,37.47,38.14,38.65,39.0]},"cum":{"United States":[92.2,94.8,97.4,100.0,102.5,105.2,108.1,110.9,113.7,116.5,119.5,122.4,125.4,128.6,132.0,135.4,139.1,142.9,146.8,150.9,155.1,159.3,163.8,168.4,172.9,177.2,181.7,186.4,191.3,196.1,200.8,205.3,209.6,213.9,218.4,222.8,227.3,232.0,236.9,241.8,246.9,252.0,257.2,262.5,267.8,273.3,278.9,284.6,290.3,296.1,302.1,308.0,314.0,320.0,326.1,332.2,338.2,344.4,350.3,355.8,361.4,367.0,372.3,377.8,383.3,388.7,393.9,399.1,404.5,409.7,414.4,419.4,424.5,429.4,434.3,439.3],"United Kingdom":[39.9,40.4,40.9,41.5,42.0,42.6,43.2,43.7,44.3,44.8,45.4,46.0,46.6,47.2,47.8,48.5,49.1,49.7,50.3,50.9,51.6,52.3,52.9,53.6,54.2,54.8,55.5,56.1,56.7,57.3,57.9,58.5,59.0,59.6,60.1,60.7,61.3,61.8,62.4,63.0,63.6,64.2,64.8,65.4,66.0,66.5,67.1,67.7,68.2,68.8,69.4,70.0,70.5,71.1,71.7,72.2,72.8,73.4,73.9,74.4,74.9,75.4,75.9,76.3,76.8,77.2,77.6,78.0,78.4,78.7,79.1,79.4,79.7,80.0,80.3,80.7],"China":[2.3,2.4,2.5,2.6,2.8,3.0,3.2,3.5,4.0,4.7,5.5,6.1,6.5,7.0,7.4,7.9,8.5,8.9,9.4,10.0,10.8,11.7,12.7,13.7,14.7,15.9,17.1,18.4,19.9,21.4,22.9,24.3,25.9,27.6,29.4,31.4,33.5,35.7,38.1,40.6,43.0,45.7,48.4,51.3,54.4,57.8,61.3,64.8,68.2,71.8,75.4,79.2,83.3,88.1,93.4,99.3,105.8,112.8,120.4,128.3,137.0,146.6,156.4,166.4,176.5,186.4,196.3,206.4,216.8,227.5,238.4,249.7,261.4,273.7,286.1,298.5],"India":[2.0,2.1,2.1,2.2,2.3,2.4,2.4,2.5,2.6,2.7,2.8,3.0,3.1,3.2,3.4,3.5,3.7,3.8,4.0,4.2,4.4,4.6,4.8,5.0,5.2,5.5,5.7,6.0,6.3,6.5,6.8,7.2,7.5,7.8,8.2,8.6,9.1,9.5,10.0,10.6,11.1,11.8,12.4,13.1,13.8,14.6,15.4,16.3,17.2,18.1,19.1,20.1,21.0,22.1,23.2,24.3,25.6,27.0,28.5,30.1,31.8,33.6,35.5,37.5,39.6,41.9,44.2,46.7,49.2,51.9,54.3,56.9,59.8,62.8,66.0,69.2],"European Union (27)":[65.8,67.2,68.7,70.2,71.8,73.6,75.4,77.3,79.3,81.2,83.3,85.5,87.9,90.4,93.0,95.7,98.5,101.3,104.3,107.6,110.9,114.3,117.9,121.6,125.3,128.9,132.8,136.7,140.7,144.8,148.8,152.7,156.5,160.2,164.0,167.9,171.7,175.6,179.4,183.3,187.2,191.0,194.6,198.2,201.8,205.5,209.2,212.8,216.5,220.1,223.7,227.3,231.0,234.7,238.5,242.2,246.0,249.7,253.3,256.6,260.0,263.3,266.6,269.8,272.8,275.9,279.0,282.1,285.1,288.0,290.6,293.4,296.1,298.6,301.0,303.4],"World":[232.3,238.6,245.1,251.7,258.5,266.0,273.9,282.0,290.4,299.3,308.7,318.1,327.9,338.2,349.1,360.4,372.3,384.6,397.6,411.5,426.1,441.4,457.4,474.3,491.0,507.8,525.5,543.7,562.6,581.9,601.2,619.9,638.5,657.3,676.6,696.7,717.0,738.1,760.0,782.3,805.1,828.3,850.8,873.6,896.6,920.2,944.5,968.9,993.3,1018.1,1043.6,1069.3,1095.5,1123.2,1151.8,1181.4,1212.0,1243.5,1275.6,1307.1,1340.4,1374.9,1409.8,1445.1,1480.6,1516.1,1551.6,1587.7,1624.5,1661.6,1696.7,1733.6,1771.1,1809.2,1847.8,1886.8]},"gdp":{"United States":[1.1,1.05,0.99,0.97,0.93,0.95,0.98,0.95,0.93,0.9,0.9,0.88,0.86,0.87,0.86,0.83,0.82,0.83,0.82,0.84,0.86,0.84,0.83,0.82,0.79,0.76,0.78,0.76,0.74,0.72,0.69,0.65,0.63,0.61,0.59,0.57,0.55,0.55,0.56,0.55,0.56,0.55,0.54,0.54,0.53,0.52,0.52,0.5,0.48,0.47,0.47,0.45,0.45,0.44,0.43,0.42,0.4,0.4,0.39,0.37,0.37,0.36,0.34,0.34,0.34,0.32,0.3,0.29,0.3,0.28,0.26,0.26,0.26],"United Kingdom":[0.9,0.95,0.93,0.91,0.9,0.9,0.89,0.87,0.85,0.8,0.81,0.79,0.79,0.78,0.74,0.74,0.72,0.68,0.67,0.68,0.69,0.69,0.65,0.62,0.59,0.58,0.56,0.56,0.54,0.55,0.5,0.49,0.48,0.46,0.43,0.44,0.43,0.41,0.39,0.39,0.4,0.41,0.4,0.38,0.36,0.35,0.35,0.33,0.32,0.31,0.3,0.3,0.28,0.28,0.27,0.26,0.26,0.25,0.24,0.23,0.23,0.21,0.22,0.21,0.18,0.17,0.16,0.15,0.15,0.14,0.14,0.14,0.12],"China":[0.18,0.19,0.21,0.2,0.26,0.28,0.29,0.34,0.68,0.97,1.13,0.99,0.74,0.65,0.57,0.56,0.59,0.49,0.54,0.6,0.7,0.74,0.78,0.75,0.74,0.8,0.86,0.89,0.88,0.84,0.78,0.75,0.75,0.73,0.72,0.72,0.71,0.7,0.72,0.72,0.73,0.75,0.73,0.71,0.7,0.7,0.69,0.67,0.63,0.64,0.61,0.59,0.6,0.67,0.67,0.69,0.69,0.68,0.7,0.69,0.68,0.7,0.67,0.63,0.59,0.54,0.5,0.48,0.47,0.45,0.45,0.43,0.43],"India":[0.17,0.17,0.18,0.17,0.17,0.18,0.18,0.21,0.2,0.21,0.21,0.22,0.24,0.25,0.23,0.26,0.27,0.25,0.26,0.25,0.25,0.26,0.28,0.27,0.28,0.28,0.29,0.28,0.27,0.3,0.29,0.3,0.3,0.3,0.29,0.31,0.32,0.33,0.32,0.33,0.33,0.35,0.36,0.35,0.35,0.35,0.35,0.36,0.34,0.35,0.34,0.33,0.33,0.32,0.31,0.32,0.32,0.32,0.32,0.32,0.31,0.31,0.32,0.31,0.31,0.3,0.29,0.28,0.28,0.27,0.27,0.27,0.27],"European Union (27)":[0.73,0.76,0.75,0.72,0.73,0.73,0.75,0.73,0.7,0.68,0.69,0.68,0.69,0.7,0.7,0.68,0.67,0.66,0.67,0.67,0.65,0.64,0.64,0.62,0.61,0.59,0.61,0.59,0.59,0.59,0.56,0.53,0.52,0.51,0.5,0.49,0.48,0.47,0.45,0.44,0.44,0.43,0.41,0.4,0.38,0.38,0.37,0.36,0.34,0.33,0.31,0.31,0.3,0.3,0.29,0.28,0.27,0.26,0.25,0.24,0.24,0.22,0.22,0.22,0.2,0.2,0.2,0.19,0.19,0.17,0.17,0.17,0.16],"World":[0.7,null,null,null,null,null,null,null,null,null,0.7,null,null,null,null,null,null,null,null,null,0.67,null,null,null,null,null,null,null,null,null,0.6,null,null,null,null,null,null,null,null,null,0.53,null,null,null,null,null,null,null,null,null,0.43,null,null,null,null,null,null,null,null,null,0.37,null,null,null,null,0.33,0.32,0.32,0.31,0.3,0.3,0.29,0.29]}};
 const $ = id => document.getElementById(id);
 const guesses = new Array(Q.length).fill(null);
 let idx = 0, choice = null;
@@ -293,49 +298,79 @@ function reveal() {
   $("take").innerHTML = t;
   $("reveal").classList.remove("hidden"); $("lock").classList.add("hidden"); $("next").classList.remove("hidden"); $("next").focus();
 }
-const CH = { W: 700, H: 380, L: 40, R: 120, Tp: 14, B: 34, y0: 1950, y1: 2025, max: 24 };
-const cx = yr => CH.L + (yr - CH.y0) / (CH.y1 - CH.y0) * (CH.W - CH.L - CH.R);
-const cy = v => CH.Tp + (1 - v / CH.max) * (CH.H - CH.Tp - CH.B);
+const CH = { W: 700, H: 380, L: 44, R: 120, Tp: 14, B: 34, y0: 1950, y1: 2025 };
 const LINES = [["United States", "U.S.", "var(--c-us)"], ["China", "China", "var(--c-cn)"], ["European Union (27)", "EU", "var(--c-eu)"], ["United Kingdom", "U.K.", "var(--c-uk)"], ["World", "World", "var(--c-w)"], ["India", "India", "var(--c-in)"]];
+// One entry per chart view. max and step set the vertical axis; dec is decimal places; end is the last year with data;
+// noWorld leaves the world line off the chart (its value still shows in the boxes below).
+const VIEWS = {
+  pc: { btn: "Per person", title: "CO₂ emissions per person, 1950–2025", max: 24, step: 4, dec: 1, end: 2025, start: 1973,
+    note: "Metric tons of CO₂ per person per year (one metric ton is about 2,200 pounds). This view asks: whose way of life emits the most?" },
+  total: { btn: "Total per year", title: "Total CO₂ emissions per year, 1950–2025", max: 14, step: 2, dec: 1, end: 2025, start: 2006, noWorld: true,
+    note: "Billions of metric tons of CO₂ per year. This view asks: who emits the most right now? The world total (39.0 billion in 2025) is too large to draw on this scale; it’s in the boxes above." },
+  cum: { btn: "Total since 1750", title: "CO₂ emitted since 1750, running total, 1950–2025", max: 500, step: 100, dec: 0, end: 2025, start: 2025, noWorld: true,
+    note: "Billions of metric tons of CO₂, added up from 1750 through each year. This view asks: who put the most CO₂ into the air over history? The world total (1,887 billion by 2025) is too large to draw on this scale; it’s in the boxes above." },
+  gdp: { btn: "Per dollar of GDP", title: "CO₂ emissions per dollar of GDP, 1950–2022", max: 1.2, step: .2, dec: 2, end: 2022, start: 1950, noWorld: true,
+    note: "Kilograms of CO₂ for each dollar of economic output (GDP), adjusted for inflation and for differences in prices between countries. This view asks: how much carbon does an economy burn to produce a dollar’s worth of goods and services? GDP data end in 2022, and world figures are available only for some years." }
+};
+let view = "pc";
+const cx = yr => CH.L + (yr - CH.y0) / (CH.y1 - CH.y0) * (CH.W - CH.L - CH.R);
+const cy = v => CH.Tp + (1 - v / VIEWS[view].max) * (CH.H - CH.Tp - CH.B);
+const fv = v => v == null ? "—" : v.toLocaleString("en-US", { minimumFractionDigits: VIEWS[view].dec, maximumFractionDigits: VIEWS[view].dec });
 function lineChart() {
-  const { W, H, L, R, Tp, B, y0, y1, max } = CH, x = cx, y = cy, lines = LINES;
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">CO₂ emissions per person, 1950 to 2025</title><desc id="lcD">U.S. peaked at 21.5 metric tons in 1973 and fell to 14.5 in 2025. U.K. fell from 12.0 in 1971 to 4.6. EU fell from 10.2 in 1979 to 5.4. China rose from 0.1 to 8.8. India rose to 2.2. World average rose from 2.4 to 4.7.</desc>`;
-  for (let v = 0; v <= max; v += 4) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${v}</text>`;
-  for (let yr = 1950; yr <= 2020; yr += 10) s += `<text x="${x(yr)}" y="${H - 12}" text-anchor="middle" font-size="12" fill="var(--muted)">${yr}</text>`;
+  const { W, H, L, R, Tp, B, y0 } = CH, V = VIEWS[view], S = DATA[view];
+  const drawn = LINES.filter(([k]) => !(V.noWorld && k === "World"));
+  const desc = drawn.map(([k, lab]) => { const a = S[k]; return `${lab}: ${fv(a[0])} in 1950, ${fv(a[a.length - 1])} in ${V.end}`; }).join("; ");
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">${V.title}</title><desc id="lcD">${desc}.</desc>`;
+  for (let i = 0; i * V.step <= V.max + 1e-9; i++) { const v = i * V.step; s += `<line x1="${L}" x2="${W - R}" y1="${cy(v)}" y2="${cy(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${cy(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${V.step < 1 ? v.toFixed(1) : v}</text>`; }
+  for (let yr = 1950; yr <= 2020; yr += 10) s += `<text x="${cx(yr)}" y="${H - 12}" text-anchor="middle" font-size="12" fill="var(--muted)">${yr}</text>`;
   const ends = [];
-  for (const [key, lab, col] of lines) {
-    const d = SERIES[key].map((v, i) => `${i ? "L" : "M"}${x(y0 + i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  for (const [key, lab, col] of drawn) {
+    const d = S[key].map((v, i) => `${i ? "L" : "M"}${cx(y0 + i).toFixed(1)},${cy(v).toFixed(1)}`).join("");
     s += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${key === "World" ? 2 : 2.6}" ${key === "World" ? 'stroke-dasharray="5 4"' : ""}/>`;
-    const last = SERIES[key][SERIES[key].length - 1]; ends.push([y(last), `${lab} ${last.toFixed(1)}`, col]);
+    const last = S[key][S[key].length - 1]; ends.push([cy(last), `${lab} ${fv(last)}`, col]);
   }
   ends.sort((a, b) => a[0] - b[0]);
   for (let i = 1; i < ends.length; i++) if (ends[i][0] - ends[i - 1][0] < 15) ends[i][0] = ends[i - 1][0] + 15;
-  for (const [yy, t, col] of ends) s += `<text x="${W - R + 6}" y="${yy + 4}" font-size="13" font-weight="700" fill="${col}">${t}</text>`;
+  const over = ends.length ? ends[ends.length - 1][0] - (H - B) : 0;
+  if (over > 0) ends.forEach(e => e[0] -= over);
+  for (const [yy, t, col] of ends) s += `<text x="${cx(V.end) + 8}" y="${yy + 4}" font-size="13" font-weight="700" fill="${col}">${t}</text>`;
   s += `<line id="cursor" x1="0" x2="0" y1="${Tp}" y2="${H - B}" stroke="var(--ink)" stroke-width="1.2" opacity=".55"/><g id="markers"></g>`;
   return s + "</svg>";
 }
 function setYear(yr) {
+  const V = VIEWS[view], S = DATA[view];
+  yr = Math.max(CH.y0, Math.min(V.end, yr));
   $("yr").value = yr;
   const c = $("cursor"); c.setAttribute("x1", cx(yr)); c.setAttribute("x2", cx(yr));
   const i = yr - CH.y0;
-  $("markers").innerHTML = LINES.map(([key, , col]) => `<circle cx="${cx(yr)}" cy="${cy(SERIES[key][i])}" r="5" fill="var(--surface)" stroke="${col}" stroke-width="2.5"/>`).join("");
+  $("markers").innerHTML = LINES.filter(([k]) => !(V.noWorld && k === "World") && S[k][i] != null)
+    .map(([key, , col]) => `<circle cx="${cx(yr)}" cy="${cy(S[key][i])}" r="5" fill="var(--surface)" stroke="${col}" stroke-width="2.5"/>`).join("");
   $("readout").innerHTML = `<div><div class="num">${yr}</div><div class="cap">Year</div></div>` +
-    LINES.map(([key, lab, col]) => `<div><div class="num" style="color:${col}">${SERIES[key][i].toFixed(1)}</div><div class="cap">${lab}</div></div>`).join("");
+    LINES.map(([key, lab, col]) => `<div><div class="num" style="color:${S[key][i] == null ? "var(--muted)" : col}">${fv(S[key][i])}</div><div class="cap">${lab}</div></div>`).join("");
 }
-function wireChart() {
+function setView(v, yr) {
+  view = v; const V = VIEWS[v];
+  document.querySelectorAll("#views button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+  $("chartTitle").textContent = V.title; $("chartNote").textContent = V.note; $("yr").max = V.end;
+  $("lineChart").innerHTML = lineChart();
   const svg = $("lineChart").querySelector("svg");
   const pick = ev => {
     const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
     const p = pt.matrixTransform(svg.getScreenCTM().inverse());
-    setYear(Math.max(CH.y0, Math.min(CH.y1, Math.round(CH.y0 + (p.x - CH.L) / (CH.W - CH.L - CH.R) * (CH.y1 - CH.y0)))));
+    setYear(Math.round(CH.y0 + (p.x - CH.L) / (CH.W - CH.L - CH.R) * (CH.y1 - CH.y0)));
   };
   svg.addEventListener("pointermove", pick); svg.addEventListener("pointerdown", pick);
-  setYear(1973);
+  setYear(yr ?? V.start);
+}
+function wireChart() {
+  $("views").innerHTML = Object.entries(VIEWS).map(([k, V]) => `<button data-v="${k}" aria-pressed="false">${V.btn}</button>`).join("");
+  document.querySelectorAll("#views button").forEach(b => b.addEventListener("click", () => setView(b.dataset.v)));
+  setView("pc");
 }
 function finish() {
   $("quiz").classList.add("hidden");
   document.querySelectorAll(".after").forEach(e => e.classList.remove("hidden"));
-  $("lineChart").innerHTML = lineChart(); wireChart();
+  wireChart();
   $("answers").innerHTML = Q.map((q, i) => {
     const rows = q.rows(guesses[i]).filter(r => !(r[0] === "Your guess" && guesses[i] == null));
     return `<h3 style="font-size:1rem;margin-top:.4rem">${i + 1}. ${q.aq || q.q}</h3><div class="bars">${rows.map(r => rowHTML(r, q)).join("")}</div>${q.note ? `<p class="unitnote" style="margin:0">${q.note}</p>` : ""}`;

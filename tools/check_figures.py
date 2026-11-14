@@ -3,7 +3,7 @@
 Usage: download owid-co2-data.csv (https://github.com/owid/co2-data or the newer
 catalog file linked from that repository's README), then run:
     python3 tools/check_figures.py path/to/owid-co2-data.csv
-Compare the printed numbers with the values in `const Q` and `const SERIES` in index.html.
+Compare the printed numbers with the values in `const Q` and `const DATA` in index.html.
 """
 import csv, json, sys
 
@@ -41,7 +41,13 @@ print(f"U.K. {CY}: produced {g('United Kingdom',CY,'co2_per_capita'):.2f} t, con
 w = lambda y: g("World", y, "co2")
 print(f"World growth 2005-2015: {(w(2015)/w(2005)-1)*100:.1f}%; {LAST-10}-{LAST}: {(w(LAST)/w(LAST-10)-1)*100:.1f}%")
 print(f"Low-income countries {LAST}: {g('Low-income countries',LAST,'population')/g('World',LAST,'population')*100:.1f}% of people, {g('Low-income countries',LAST,'share_global_co2'):.2f}% of CO2")
-series = {c: [round(g(c, y, "co2_per_capita"), 1) for y in range(1950, LAST + 1)]
-          for c in ["United States", "United Kingdom", "China", "India", "European Union (27)", "World"]}
-print("SERIES (paste into index.html; the chart assumes the series start in 1950 and end in", LAST, "):")
-print(json.dumps(series, separators=(",", ":")))
+C = ["United States", "United Kingdom", "China", "India", "European Union (27)", "World"]
+def ser(k, f, end):
+    return {c: [(f(g(c, y, k)) if g(c, y, k) is not None else None) for y in range(1950, end + 1)] for c in C}
+data = {"pc": ser("co2_per_capita", lambda v: round(v, 1), LAST),          # metric tons per person
+        "total": ser("co2", lambda v: round(v / 1000, 2), LAST),            # billion metric tons per year
+        "cum": ser("cumulative_co2", lambda v: round(v / 1000, 1), LAST),   # billion metric tons since 1750
+        "gdp": ser("co2_per_gdp", lambda v: round(v, 2), GY)}               # kg per dollar of GDP
+print("DATA (paste into index.html as `const DATA = ...;`). If the last years change, also update `end`, the titles,")
+print("and the world totals in the notes inside `const VIEWS`, and CH.y1:")
+print(json.dumps(data, separators=(",", ":")))

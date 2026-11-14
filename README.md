@@ -7,7 +7,7 @@ An interactive guess-first activity about carbon dioxide emissions: which countr
 ## What it does
 
 - **Nine guesses** (sliders and multiple choice), each followed by bars showing the answer.
-- **An interactive line chart** of CO₂ emissions per person, 1950–2025, for the U.S., U.K., EU, China, India, and the world. Move across the chart or drag the “Pick a year” slider, and the boxes under the chart show each country’s figure for that year.
+- **An interactive line chart** for the U.S., U.K., EU, China, India, and the world, with four views students can switch between: emissions **per person**, **total per year**, **total since 1750** (a running total), and **per dollar of GDP** (1950–2022). Move across the chart or drag the “Pick a year” slider, and the boxes under the chart show each figure for that year. In the two “total” views and the GDP view the world line isn’t drawn (too large for the scale, or too few years of data), but its value appears in the boxes.
 - **All nine answers** in one place.
 - **The fuller picture:** three ways of counting (total, per person, historical), how emissions can fall while economies grow, the 22 countries that did it, progress and how far there is to go, the unequal footprint, and connections to economics, political science, and geography.
 - **Discussion questions.**
@@ -44,8 +44,8 @@ Claims on the page that come from general knowledge rather than this dataset: Ch
 The Global Carbon Budget comes out each November. To update:
 
 1. Download the latest `owid-co2-data.csv` (see the README at https://github.com/owid/co2-data for the current download link).
-2. Run `python3 tools/check_figures.py path/to/owid-co2-data.csv`. It prints every figure the page uses, the list of decoupling countries, and a new `SERIES` line for the chart.
-3. Update the numbers in `const Q` and `const SERIES` in `index.html`, and the matching sentences in “The fuller picture.” If the latest year changes, update the chart’s end year (`y1` in `lineChart`) and the years in the question text.
+2. Run `python3 tools/check_figures.py path/to/owid-co2-data.csv`. It prints every figure the page uses, the list of decoupling countries, and a new `DATA` line for the chart.
+3. Update the numbers in `const Q` and `const DATA` in `index.html`, and the matching sentences in “The fuller picture.” If the latest year changes, update the chart’s end year (`CH.y1` and each `end` and title in `const VIEWS`) and the years in the question text.
 
 ## Turning on the site (one time)
 
