@@ -18,7 +18,7 @@ To skip the guesses and show the chart and all the answers, add `#answers` (or `
 
 ## Data
 
-- **Emissions:** Global Carbon Project, Global Carbon Budget 2026, as compiled by Our World in Data (`owid-co2-data.csv` from https://github.com/owid/co2-data, downloaded November 14, 2026; CC BY 4.0). Fossil fuel and industry CO₂ only (no other greenhouse gases, no land-use change). Production-based unless noted; consumption-based figures run 1990–2024.
+- **Emissions:** Global Carbon Project, Global Carbon Budget 2026, as compiled by Our World in Data (`owid-co2-data.csv` from https://github.com/owid/co2-data, downloaded November 14, 2026; CC BY 4.0). Fossil fuel and industry CO₂ only (no other greenhouse gases, no land-use change). Production-based unless noted; consumption-based figures run 1990–2024. Per-person figures are in metric tons (t; about 2,200 pounds), written as “metric tons” on the page because most U.S. readers haven’t seen “tonnes.”
 - **GDP:** Maddison Project Database 2023 (Bolt and van Zanden), via the same Our World in Data file. Ends in 2022, so the growth comparisons run 2005–2022.
 - **2026 projection and clean-energy offset:** Hausfather and Friedlingstein, “Analysis: Fossil-Fuel CO₂ Emissions Set to Dip in 2026 as Iran Conflict Hits Oil Use,” *Carbon Brief*, Nov. 10, 2026; University of Exeter news release, “Fossil CO₂ Emissions Decrease in 2026,” Nov. 10, 2026.
 

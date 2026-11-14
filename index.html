@@ -120,7 +120,7 @@ footer { font-size: .85rem; color: var(--muted); }
   <section class="card hidden after chart" id="charts">
     <h2>CO₂ emissions per person, 1950–2025</h2>
     <div id="lineChart"></div>
-    <p class="unitnote" style="margin:0">Tonnes of CO₂ per person per year, from fossil fuels and industry. Counts emissions where they’re produced.</p>
+    <p class="unitnote" style="margin:0">Metric tons of CO₂ per person per year (one metric ton is about 2,200 pounds), from fossil fuels and industry. Counts emissions where they’re produced.</p>
   </section>
 
   <section class="card hidden after">
@@ -134,7 +134,7 @@ footer { font-size: .85rem; color: var(--muted); }
     <p><strong>How can emissions fall while an economy grows?</strong> Common explanations include changing how electricity is made (less coal; more natural gas, renewables, or nuclear), using energy more efficiently, and shifting toward service industries that use less energy than heavy manufacturing. Some of the drop came from moving factories overseas, which is why the consumption-based count matters. But in the 22 countries listed below, emissions fell even when imports are counted.</p>
     <p><strong>The 22 countries.</strong> These countries of more than a million people cut both their production-based and their consumption-based CO₂ by at least 5% from 2005 to 2022 while their economies grew (after inflation): Austria, Bulgaria, Croatia, Denmark, Estonia, Finland, France, Germany, Hungary, Ireland, Italy, Japan, the Netherlands, Norway, Portugal, Romania, Slovakia, Spain, Sweden, Trinidad and Tobago, the United Kingdom, and the United States. Several more, including Canada and New Zealand, came close.</p>
     <p><strong>Progress and how far there is to go.</strong> Fossil emissions worldwide grew about 20% from 2005 to 2015, and about 10% from 2015 to 2025. The Global Carbon Project projects a small drop of about 0.4% in 2026, partly from more solar and wind power and partly from an oil shock tied to the Iran conflict. It estimates that solar, wind, and electric vehicles now offset about two-thirds of the emissions that rising energy demand would otherwise add. But its researchers warn the shift isn’t yet fast enough for a lasting decline, and once deforestation and other land-use emissions are added, total CO₂ emissions are projected to hit a record in 2026.</p>
-    <p><strong>A very unequal footprint.</strong> The world’s low-income countries are home to about 9% of the world’s people but produced about half of 1% of its fossil CO₂ in 2025. The average person in those countries emitted about 0.3 tonnes, compared with 14.5 for the average American.</p>
+    <p><strong>A very unequal footprint.</strong> The world’s low-income countries are home to about 9% of the world’s people but produced about half of 1% of its fossil CO₂ in 2025. The average person in those countries emitted about 0.3 metric tons, compared with 14.5 for the average American.</p>
     <p><strong>Other fields to bring in.</strong> Economists study whether countries tend to pollute more as they industrialize and then less as they get richer, an idea called the environmental Kuznets curve, and how to price carbon. Political scientists study why cooperation on a shared problem is hard when the costs of acting fall on each country but the benefits are shared by all. Geographers and climate scientists study where the effects of warming fall, often on places that emitted little.</p>
     <h3>Talk about it</h3>
     <ol>
@@ -169,7 +169,7 @@ footer { font-size: .85rem; color: var(--muted); }
 // Data: Global Carbon Budget 2026 via Our World in Data (owid-co2-data.csv), GDP from Maddison Project Database 2023.
 // Each question: then (shown first), q, unit, scale [min, max] for the bars, rows(guess) for the reveal, take(guess) for the text.
 // Slider questions also have min, max, step, start, ans, near. Row format: [label, value, color, text-override].
-const T = { unit: " t", scale: [0, 30], note: "Tonnes of CO₂ per person per year." };
+const T = { unit: " t", scale: [0, 30], note: "Metric tons (t) of CO₂ per person per year. One metric ton is about 2,200 pounds." };
 const P = { unit: "%", scale: [0, 50], note: "" };
 const Q = [
   { type: "slider", ...P, min: 0, max: 50, step: 1, start: 25, ans: 32, near: 3,
@@ -182,22 +182,22 @@ const Q = [
     q: "Per person, who emitted more in 2025: the average person in China, or the average person in the European Union?",
     opts: ["The EU, by a lot", "About the same", "China"], a: 2,
     rows: () => [["United States", 14.5, "var(--now)"], ["China", 8.8, "var(--now)"], ["European Union", 5.4, "var(--now)"], ["World average", 4.7, "var(--alt)"], ["India", 2.2, "var(--now)"], ["Low-income countries", 0.3, "var(--now)"]],
-    take: () => `The average person in China emitted <strong>8.8 tonnes</strong> in 2025, more than the EU average of 5.4 and nearly double the world average. In 2005 the two were reversed: 4.5 tonnes in China, 8.6 in the EU. The average American still emits much more, 14.5 tonnes.` },
+    take: () => `The average person in China emitted <strong>8.8 metric tons</strong> in 2025, more than the EU average of 5.4 and nearly double the world average. In 2005 the two were reversed: 4.5 metric tons in China, 8.6 in the EU. The average American still emits much more, 14.5 metric tons.` },
   { type: "slider", ...{ unit: "%", scale: [0, 40], note: "" }, min: 0, max: 40, step: 1, start: 20, ans: 23, near: 3,
     then: "CO₂ stays in the atmosphere for centuries, so past emissions still affect the climate today.",
     q: "Of all the fossil CO₂ emitted since 1750, what percentage came from the United States?",
     rows: g => [["Your guess", g, "var(--you)"], ["United States", 23.3, "var(--now)"], ["European Union", 16.1, "var(--alt)"], ["China", 15.8, "var(--alt)"], ["Russia", 6.5, "var(--alt)"], ["United Kingdom", 4.3, "var(--alt)"], ["India", 3.7, "var(--alt)"], ["All of Africa", 3.0, "var(--alt)", "3.0%"]],
     take: g => `${miss(g, 23, " points", 3)} About <strong>23%</strong>, more than any other country. The U.K., where industrialization started, has produced 4.3% of the total despite having less than 1% of the world’s people today. All of Africa: 3%.` },
   { type: "slider", ...T, min: 0, max: 30, step: .5, start: 10, ans: 14.5, near: 1,
-    then: "U.S. emissions per person peaked in 1973, at 21.5 tonnes of CO₂ per person per year.",
-    q: "In 2025, how many tonnes per person did the U.S. emit?",
+    then: "U.S. emissions per person peaked in 1973, at 21.5 metric tons of CO₂ per person per year.",
+    q: "In 2025, how many metric tons per person did the U.S. emit?",
     rows: g => [["Your guess", g, "var(--you)"], ["1973 (peak)", 21.5, "var(--then)"], ["2005", 20.7, "var(--then)"], ["2025", 14.5, "var(--now)"]],
-    take: g => `${miss(g, 14.5, " tonnes", 1)} <strong>14.5 tonnes</strong>, down about a third from the peak and about where it was around 1940. Most of the drop came after 2005.` },
-  { type: "slider", ...{ unit: " t", scale: [0, 15], note: "Tonnes of CO₂ per person per year." }, min: 0, max: 15, step: .5, start: 8, ans: 4.6, near: .5,
-    then: "The United Kingdom, where the Industrial Revolution began, emitted 12 tonnes of CO₂ per person in 1971.",
-    q: "In 2025, how many tonnes per person did the U.K. emit?",
+    take: g => `${miss(g, 14.5, " metric tons", 1)} <strong>14.5 metric tons</strong>, down about a third from the peak and about where it was around 1940. Most of the drop came after 2005.` },
+  { type: "slider", ...{ unit: " t", scale: [0, 15], note: "Metric tons (t) of CO₂ per person per year. One metric ton is about 2,200 pounds." }, min: 0, max: 15, step: .5, start: 8, ans: 4.6, near: .5,
+    then: "The United Kingdom, where the Industrial Revolution began, emitted 12 metric tons of CO₂ per person in 1971.",
+    q: "In 2025, how many metric tons per person did the U.K. emit?",
     rows: g => [["Your guess", g, "var(--you)"], ["1971 (peak)", 12.0, "var(--then)", "12.0 t"], ["2005", 9.4, "var(--then)"], ["2025", 4.6, "var(--now)"]],
-    take: g => `${miss(g, 4.6, " tonnes", .5)} <strong>4.6 tonnes</strong>, close to what it was in the 1850s and below the world average. The U.K. closed its last coal power plant in 2024.` },
+    take: g => `${miss(g, 4.6, " metric tons", .5)} <strong>4.6 metric tons</strong>, close to what it was in the 1850s and below the world average. The U.K. closed its last coal power plant in 2024.` },
   { type: "choice", unit: "%", scale: [-60, 60], note: "Percentage change, 2005 to 2022.",
     then: "From 2005 to 2022, the U.S. economy grew by about a third, after adjusting for inflation.",
     q: "What happened to U.S. CO₂ emissions over the same years?", aq: "The U.S. economy grew about a third from 2005 to 2022. What happened to U.S. CO₂ emissions?",
@@ -210,12 +210,12 @@ const Q = [
     opts: ["None", "1 to 5", "6 to 15", "More than 20"], a: 3,
     rows: () => [["Countries", 22, "var(--now)", "22 countries"]],
     take: () => `<strong>22 countries</strong>, mostly in Europe, plus the U.S. and Japan. The full list is in “The fuller picture” below. Even counting imports, these countries cut emissions while growing.` },
-  { type: "choice", ...{ unit: " t", scale: [0, 16], note: "Tonnes of CO₂ per person per year." },
-    then: "Counted where it’s produced, the U.K. emitted 4.6 tonnes of CO₂ per person in 2024.",
+  { type: "choice", ...{ unit: " t", scale: [0, 16], note: "Metric tons (t) of CO₂ per person per year. One metric ton is about 2,200 pounds." },
+    then: "Counted where it’s produced, the U.K. emitted 4.6 metric tons of CO₂ per person in 2024.",
     q: "Counting the CO₂ from making everything Britons buy, including imports, how do U.K. emissions per person compare?", aq: "How do U.K. emissions per person compare when you count the CO₂ from making everything Britons buy, including imports?",
     opts: ["Lower: Britain exports more than it imports", "About the same", "Higher: imports carry a lot of emissions"], a: 2,
     rows: () => [["Produced in U.K., 2024", 4.6, "var(--then)"], ["Consumed in U.K., 2024", 7.1, "var(--now)"], ["Consumed in U.K., 2005", 12.6, "var(--alt)"]],
-    take: () => `<strong>Higher</strong>: 7.1 tonnes per person, about half again as much. Many rich countries “import” emissions this way. But the U.K.’s consumption-based emissions also fell, from 12.6 tonnes per person in 2005.` },
+    take: () => `<strong>Higher</strong>: 7.1 metric tons per person, about half again as much. Many rich countries “import” emissions this way. But the U.K.’s consumption-based emissions also fell, from 12.6 metric tons per person in 2005.` },
   { type: "choice", ...{ unit: "%", scale: [0, 25], note: "Growth in world fossil CO₂ emissions over each decade." },
     then: "From 2005 to 2015, the world’s fossil CO₂ emissions grew about 20%.",
     q: "What happened from 2015 to 2025?", aq: "World fossil CO₂ emissions grew about 20% from 2005 to 2015. What happened from 2015 to 2025?",
@@ -262,7 +262,7 @@ function render() {
   if (q.type === "slider") {
     $("sliderBlock").classList.remove("hidden"); $("choices").classList.add("hidden");
     const s = $("slider"); s.min = q.min; s.max = q.max; s.step = q.step; s.value = q.start; s.disabled = false;
-    s.setAttribute("aria-label", "Your guess, in " + (q.unit === "%" ? "percent" : "tonnes per person"));
+    s.setAttribute("aria-label", "Your guess, in " + (q.unit === "%" ? "percent" : "metric tons per person"));
     $("sv").textContent = fmt(+s.value, q); $("lock").disabled = false;
   } else {
     $("sliderBlock").classList.add("hidden"); $("choices").classList.remove("hidden");
@@ -288,7 +288,7 @@ function lineChart() {
   const W = 700, H = 380, L = 40, R = 120, Tp = 14, B = 34, y0 = 1950, y1 = 2025, max = 24;
   const x = y => L + (y - y0) / (y1 - y0) * (W - L - R), y = v => Tp + (1 - v / max) * (H - Tp - B);
   const lines = [["United States", "U.S.", "var(--c-us)"], ["United Kingdom", "U.K.", "var(--c-uk)"], ["European Union (27)", "EU", "var(--c-eu)"], ["China", "China", "var(--c-cn)"], ["World", "World", "var(--c-w)"], ["India", "India", "var(--c-in)"]];
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">CO₂ emissions per person, 1950 to 2025</title><desc id="lcD">U.S. peaked at 21.5 tonnes in 1973 and fell to 14.5 in 2025. U.K. fell from 12.0 in 1971 to 4.6. EU fell from 10.2 in 1979 to 5.4. China rose from 0.1 to 8.8. India rose to 2.2. World average rose from 2.4 to 4.7.</desc>`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">CO₂ emissions per person, 1950 to 2025</title><desc id="lcD">U.S. peaked at 21.5 metric tons in 1973 and fell to 14.5 in 2025. U.K. fell from 12.0 in 1971 to 4.6. EU fell from 10.2 in 1979 to 5.4. China rose from 0.1 to 8.8. India rose to 2.2. World average rose from 2.4 to 4.7.</desc>`;
   for (let v = 0; v <= max; v += 4) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${v}</text>`;
   for (let yr = 1950; yr <= 2020; yr += 10) s += `<text x="${x(yr)}" y="${H - 12}" text-anchor="middle" font-size="12" fill="var(--muted)">${yr}</text>`;
   const ends = [];
