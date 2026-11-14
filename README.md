@@ -7,7 +7,7 @@ An interactive guess-first activity about carbon dioxide emissions: which countr
 ## What it does
 
 - **Nine guesses** (sliders and multiple choice), each followed by bars showing the answer.
-- **A line chart** of CO₂ emissions per person, 1950–2025, for the U.S., U.K., EU, China, India, and the world.
+- **An interactive line chart** of CO₂ emissions per person, 1950–2025, for the U.S., U.K., EU, China, India, and the world. Move across the chart or drag the “Pick a year” slider, and the boxes under the chart show each country’s figure for that year.
 - **All nine answers** in one place.
 - **The fuller picture:** three ways of counting (total, per person, historical), how emissions can fall while economies grow, the 22 countries that did it, progress and how far there is to go, the unequal footprint, and connections to economics, political science, and geography.
 - **Discussion questions.**

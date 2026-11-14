@@ -84,6 +84,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .take { margin: 0; max-width: 62ch; }
 .chart svg { width: 100%; height: auto; display: block; }
 .chart text { font-family: var(--body); }
+.chart svg { touch-action: pan-y; cursor: crosshair; }
+.yearpick { display: flex; align-items: center; gap: .8rem; font-size: .9rem; color: var(--muted); }
+.yearpick input { flex: 1; accent-color: var(--ink); height: 2rem; }
+.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr)); gap: .45rem; }
+.readout > div { border: 1px solid var(--line); border-radius: 10px; padding: .45rem .6rem; }
+.readout .num { font-family: var(--display); font-weight: 900; font-size: 1.25rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.readout .cap { font-size: .8rem; color: var(--muted); }
 .prose p, .prose ol, .prose ul { margin: 0 0 .7rem; max-width: 64ch; }
 .prose li { margin-bottom: .4rem; }
 .notes { font-size: .88rem; color: var(--muted); }
@@ -120,7 +127,9 @@ footer { font-size: .85rem; color: var(--muted); }
   <section class="card hidden after chart" id="charts">
     <h2>CO₂ emissions per person, 1950–2025</h2>
     <div id="lineChart"></div>
-    <p class="unitnote" style="margin:0">Metric tons of CO₂ per person per year (one metric ton is about 2,200 pounds), from fossil fuels and industry. Counts emissions where they’re produced.</p>
+    <div class="yearpick"><label for="yr">Pick a year</label><input type="range" id="yr" min="1950" max="2025" value="2025"></div>
+    <div class="readout" id="readout" aria-live="polite"></div>
+    <p class="unitnote" style="margin:0">Metric tons of CO₂ per person per year (one metric ton is about 2,200 pounds), from fossil fuels and industry. Counts emissions where they’re produced. Move across the chart or drag the slider to see each year.</p>
   </section>
 
   <section class="card hidden after">
@@ -284,10 +293,12 @@ function reveal() {
   $("take").innerHTML = t;
   $("reveal").classList.remove("hidden"); $("lock").classList.add("hidden"); $("next").classList.remove("hidden"); $("next").focus();
 }
+const CH = { W: 700, H: 380, L: 40, R: 120, Tp: 14, B: 34, y0: 1950, y1: 2025, max: 24 };
+const cx = yr => CH.L + (yr - CH.y0) / (CH.y1 - CH.y0) * (CH.W - CH.L - CH.R);
+const cy = v => CH.Tp + (1 - v / CH.max) * (CH.H - CH.Tp - CH.B);
+const LINES = [["United States", "U.S.", "var(--c-us)"], ["China", "China", "var(--c-cn)"], ["European Union (27)", "EU", "var(--c-eu)"], ["United Kingdom", "U.K.", "var(--c-uk)"], ["World", "World", "var(--c-w)"], ["India", "India", "var(--c-in)"]];
 function lineChart() {
-  const W = 700, H = 380, L = 40, R = 120, Tp = 14, B = 34, y0 = 1950, y1 = 2025, max = 24;
-  const x = y => L + (y - y0) / (y1 - y0) * (W - L - R), y = v => Tp + (1 - v / max) * (H - Tp - B);
-  const lines = [["United States", "U.S.", "var(--c-us)"], ["United Kingdom", "U.K.", "var(--c-uk)"], ["European Union (27)", "EU", "var(--c-eu)"], ["China", "China", "var(--c-cn)"], ["World", "World", "var(--c-w)"], ["India", "India", "var(--c-in)"]];
+  const { W, H, L, R, Tp, B, y0, y1, max } = CH, x = cx, y = cy, lines = LINES;
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">CO₂ emissions per person, 1950 to 2025</title><desc id="lcD">U.S. peaked at 21.5 metric tons in 1973 and fell to 14.5 in 2025. U.K. fell from 12.0 in 1971 to 4.6. EU fell from 10.2 in 1979 to 5.4. China rose from 0.1 to 8.8. India rose to 2.2. World average rose from 2.4 to 4.7.</desc>`;
   for (let v = 0; v <= max; v += 4) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${v}</text>`;
   for (let yr = 1950; yr <= 2020; yr += 10) s += `<text x="${x(yr)}" y="${H - 12}" text-anchor="middle" font-size="12" fill="var(--muted)">${yr}</text>`;
@@ -300,12 +311,31 @@ function lineChart() {
   ends.sort((a, b) => a[0] - b[0]);
   for (let i = 1; i < ends.length; i++) if (ends[i][0] - ends[i - 1][0] < 15) ends[i][0] = ends[i - 1][0] + 15;
   for (const [yy, t, col] of ends) s += `<text x="${W - R + 6}" y="${yy + 4}" font-size="13" font-weight="700" fill="${col}">${t}</text>`;
+  s += `<line id="cursor" x1="0" x2="0" y1="${Tp}" y2="${H - B}" stroke="var(--ink)" stroke-width="1.2" opacity=".55"/><g id="markers"></g>`;
   return s + "</svg>";
+}
+function setYear(yr) {
+  $("yr").value = yr;
+  const c = $("cursor"); c.setAttribute("x1", cx(yr)); c.setAttribute("x2", cx(yr));
+  const i = yr - CH.y0;
+  $("markers").innerHTML = LINES.map(([key, , col]) => `<circle cx="${cx(yr)}" cy="${cy(SERIES[key][i])}" r="5" fill="var(--surface)" stroke="${col}" stroke-width="2.5"/>`).join("");
+  $("readout").innerHTML = `<div><div class="num">${yr}</div><div class="cap">Year</div></div>` +
+    LINES.map(([key, lab, col]) => `<div><div class="num" style="color:${col}">${SERIES[key][i].toFixed(1)}</div><div class="cap">${lab}</div></div>`).join("");
+}
+function wireChart() {
+  const svg = $("lineChart").querySelector("svg");
+  const pick = ev => {
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    setYear(Math.max(CH.y0, Math.min(CH.y1, Math.round(CH.y0 + (p.x - CH.L) / (CH.W - CH.L - CH.R) * (CH.y1 - CH.y0)))));
+  };
+  svg.addEventListener("pointermove", pick); svg.addEventListener("pointerdown", pick);
+  setYear(1973);
 }
 function finish() {
   $("quiz").classList.add("hidden");
   document.querySelectorAll(".after").forEach(e => e.classList.remove("hidden"));
-  $("lineChart").innerHTML = lineChart();
+  $("lineChart").innerHTML = lineChart(); wireChart();
   $("answers").innerHTML = Q.map((q, i) => {
     const rows = q.rows(guesses[i]).filter(r => !(r[0] === "Your guess" && guesses[i] == null));
     return `<h3 style="font-size:1rem;margin-top:.4rem">${i + 1}. ${q.aq || q.q}</h3><div class="bars">${rows.map(r => rowHTML(r, q)).join("")}</div>${q.note ? `<p class="unitnote" style="margin:0">${q.note}</p>` : ""}`;
@@ -315,6 +345,7 @@ function finish() {
 $("slider").addEventListener("input", e => $("sv").textContent = fmt(+e.target.value, Q[idx]));
 $("lock").addEventListener("click", reveal);
 $("next").addEventListener("click", () => { idx++; render(); });
+$("yr").addEventListener("input", e => setYear(+e.target.value));
 $("skip").addEventListener("click", () => { idx = Q.length; finish(); });
 if (location.hash === "#answers" || location.hash === "#charts") { idx = Q.length; finish(); } else render();
 </script>
