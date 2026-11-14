@@ -134,7 +134,7 @@ footer { font-size: .85rem; color: var(--muted); }
     <div class="yearpick"><label for="yr">Pick a year</label><input type="range" id="yr" min="1950" max="2025" value="2025"></div>
     <div class="readout" id="readout" aria-live="polite"></div>
     <p class="unitnote" id="chartNote" style="margin:0"></p>
-    <p class="unitnote" style="margin:0">All four views count CO₂ from fossil fuels and industry, where it’s produced. Move across the chart or drag the slider to see each year.</p>
+    <p class="unitnote" style="margin:0">All four views count CO₂ from fossil fuels and industry, where it’s produced. “World” means every country combined, including the ones shown here: a total in the two total views, and an average (world emissions divided by world population or world GDP) in the other two. It also includes international flights and shipping, which aren’t counted for any single country. Move across the chart or drag the slider to see each year.</p>
   </section>
 
   <section class="card hidden after">
@@ -298,28 +298,29 @@ function reveal() {
   $("take").innerHTML = t;
   $("reveal").classList.remove("hidden"); $("lock").classList.add("hidden"); $("next").classList.remove("hidden"); $("next").focus();
 }
-const CH = { W: 700, H: 380, L: 44, R: 120, Tp: 14, B: 34, y0: 1950, y1: 2025 };
+const CH = { W: 700, H: 380, L: 44, R: 142, Tp: 14, B: 34, y0: 1950, y1: 2025 };
 const LINES = [["United States", "U.S.", "var(--c-us)"], ["China", "China", "var(--c-cn)"], ["European Union (27)", "EU", "var(--c-eu)"], ["United Kingdom", "U.K.", "var(--c-uk)"], ["World", "World", "var(--c-w)"], ["India", "India", "var(--c-in)"]];
 // One entry per chart view. max and step set the vertical axis; dec is decimal places; end is the last year with data;
 // noWorld leaves the world line off the chart (its value still shows in the boxes below).
 const VIEWS = {
-  pc: { btn: "Per person", title: "CO₂ emissions per person, 1950–2025", max: 24, step: 4, dec: 1, end: 2025, start: 1973,
+  pc: { btn: "Per person", title: "CO₂ emissions per person, 1950–2025", max: 24, step: 4, dec: 1, end: 2025, start: 1973, world: "World average",
     note: "Metric tons of CO₂ per person per year (one metric ton is about 2,200 pounds). This view asks: whose way of life emits the most?" },
-  total: { btn: "Total per year", title: "Total CO₂ emissions per year, 1950–2025", max: 14, step: 2, dec: 1, end: 2025, start: 2006, noWorld: true,
-    note: "Billions of metric tons of CO₂ per year. This view asks: who emits the most right now? The world total (39.0 billion in 2025) is too large to draw on this scale; it’s in the boxes above." },
-  cum: { btn: "Total since 1750", title: "CO₂ emitted since 1750, running total, 1950–2025", max: 500, step: 100, dec: 0, end: 2025, start: 2025, noWorld: true,
-    note: "Billions of metric tons of CO₂, added up from 1750 through each year. This view asks: who put the most CO₂ into the air over history? The world total (1,887 billion by 2025) is too large to draw on this scale; it’s in the boxes above." },
-  gdp: { btn: "Per dollar of GDP", title: "CO₂ emissions per dollar of GDP, 1950–2022", max: 1.2, step: .2, dec: 2, end: 2022, start: 1950, noWorld: true,
+  total: { btn: "Total per year", title: "Total CO₂ emissions per year, 1950–2025", max: 14, step: 2, dec: 1, end: 2025, start: 2006, noWorld: true, world: "World total",
+    note: "Billions of metric tons of CO₂ per year. This view asks: who emits the most right now? The world total, all countries combined (39.0 billion in 2025), is too large to draw on this scale; it’s in the boxes above." },
+  cum: { btn: "Total since 1750", title: "CO₂ emitted since 1750, running total, 1950–2025", max: 500, step: 100, dec: 0, end: 2025, start: 2025, noWorld: true, world: "World total",
+    note: "Billions of metric tons of CO₂, added up from 1750 through each year. This view asks: who put the most CO₂ into the air over history? The world total, all countries combined (1,887 billion by 2025), is too large to draw on this scale; it’s in the boxes above." },
+  gdp: { btn: "Per dollar of GDP", title: "CO₂ emissions per dollar of GDP, 1950–2022", max: 1.2, step: .2, dec: 2, end: 2022, start: 1950, noWorld: true, world: "World average",
     note: "Kilograms of CO₂ for each dollar of economic output (GDP), adjusted for inflation and for differences in prices between countries. This view asks: how much carbon does an economy burn to produce a dollar’s worth of goods and services? GDP data end in 2022, and world figures are available only for some years." }
 };
 let view = "pc";
 const cx = yr => CH.L + (yr - CH.y0) / (CH.y1 - CH.y0) * (CH.W - CH.L - CH.R);
 const cy = v => CH.Tp + (1 - v / VIEWS[view].max) * (CH.H - CH.Tp - CH.B);
+const nm = (key, lab) => key === "World" ? VIEWS[view].world : lab;
 const fv = v => v == null ? "—" : v.toLocaleString("en-US", { minimumFractionDigits: VIEWS[view].dec, maximumFractionDigits: VIEWS[view].dec });
 function lineChart() {
   const { W, H, L, R, Tp, B, y0 } = CH, V = VIEWS[view], S = DATA[view];
   const drawn = LINES.filter(([k]) => !(V.noWorld && k === "World"));
-  const desc = drawn.map(([k, lab]) => { const a = S[k]; return `${lab}: ${fv(a[0])} in 1950, ${fv(a[a.length - 1])} in ${V.end}`; }).join("; ");
+  const desc = drawn.map(([k, lab]) => { const a = S[k]; return `${nm(k, lab)}: ${fv(a[0])} in 1950, ${fv(a[a.length - 1])} in ${V.end}`; }).join("; ");
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="lcT lcD"><title id="lcT">${V.title}</title><desc id="lcD">${desc}.</desc>`;
   for (let i = 0; i * V.step <= V.max + 1e-9; i++) { const v = i * V.step; s += `<line x1="${L}" x2="${W - R}" y1="${cy(v)}" y2="${cy(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${cy(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${V.step < 1 ? v.toFixed(1) : v}</text>`; }
   for (let yr = 1950; yr <= 2020; yr += 10) s += `<text x="${cx(yr)}" y="${H - 12}" text-anchor="middle" font-size="12" fill="var(--muted)">${yr}</text>`;
@@ -327,7 +328,7 @@ function lineChart() {
   for (const [key, lab, col] of drawn) {
     const d = S[key].map((v, i) => `${i ? "L" : "M"}${cx(y0 + i).toFixed(1)},${cy(v).toFixed(1)}`).join("");
     s += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${key === "World" ? 2 : 2.6}" ${key === "World" ? 'stroke-dasharray="5 4"' : ""}/>`;
-    const last = S[key][S[key].length - 1]; ends.push([cy(last), `${lab} ${fv(last)}`, col]);
+    const last = S[key][S[key].length - 1]; ends.push([cy(last), `${nm(key, lab)} ${fv(last)}`, col]);
   }
   ends.sort((a, b) => a[0] - b[0]);
   for (let i = 1; i < ends.length; i++) if (ends[i][0] - ends[i - 1][0] < 15) ends[i][0] = ends[i - 1][0] + 15;
@@ -346,7 +347,7 @@ function setYear(yr) {
   $("markers").innerHTML = LINES.filter(([k]) => !(V.noWorld && k === "World") && S[k][i] != null)
     .map(([key, , col]) => `<circle cx="${cx(yr)}" cy="${cy(S[key][i])}" r="5" fill="var(--surface)" stroke="${col}" stroke-width="2.5"/>`).join("");
   $("readout").innerHTML = `<div><div class="num">${yr}</div><div class="cap">Year</div></div>` +
-    LINES.map(([key, lab, col]) => `<div><div class="num" style="color:${S[key][i] == null ? "var(--muted)" : col}">${fv(S[key][i])}</div><div class="cap">${lab}</div></div>`).join("");
+    LINES.map(([key, lab, col]) => `<div><div class="num" style="color:${S[key][i] == null ? "var(--muted)" : col}">${fv(S[key][i])}</div><div class="cap">${nm(key, lab)}</div></div>`).join("");
 }
 function setView(v, yr) {
   view = v; const V = VIEWS[v];
