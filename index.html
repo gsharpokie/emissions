@@ -28,7 +28,7 @@
 :root {
   --paper: #f3f5f1; --surface: #ffffff; --ink: #1a2a24; --muted: #57685f; --line: #d7ded8;
   --you: #c0581d; --then: #a3b5ab; --now: #2d6a4f; --alt: #6b7fb8;
-  --c-us: #2d6a4f; --c-uk: #8c6bb1; --c-eu: #3a7fb8; --c-cn: #c0581d; --c-in: #b8901f; --c-w: #1a2a24; --onbar: #ffffff;
+  --c-us: #2d6a4f; --c-uk: #8c6bb1; --c-eu: #3a7fb8; --c-cn: #c0581d; --c-in: #94720f; --c-w: #1a2a24; --onbar: #ffffff;
   --focus: #c0581d;
   --display: "Libre Franklin", "Segoe UI", system-ui, sans-serif;
   --body: Aptos, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -100,6 +100,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 footer { font-size: .85rem; color: var(--muted); }
 .hidden { display: none !important; }
 @media (max-width: 560px) { .card { padding: 1.1rem; } .brow { grid-template-columns: 1fr; gap: .2rem; } }
+
+/* Main landmark for screen readers; keeps the same spacing as before. */
+.wrap-main { display: grid; gap: inherit; min-width: 0; }
 </style>
 </head>
 <body>
@@ -109,6 +112,7 @@ footer { font-size: .85rem; color: var(--muted); }
     <h1>Who Emits the Carbon?</h1>
     <p class="lede">Which countries put the most carbon dioxide into the air? Does the answer change if you count per person, or add up history? And can a country’s economy grow while its emissions shrink? Make nine guesses, then see what the data show.</p>
   </header>
+  <main class="wrap-main">
 
   <section class="card" id="quiz" aria-live="polite">
     <div class="meta"><span id="counter"></span><button class="linkish" id="skip">Skip to all the answers</button></div>
@@ -176,6 +180,7 @@ footer { font-size: .85rem; color: var(--muted); }
     <p>Spot an error? <a href="https://github.com/gsharpokie/emissions/issues/new">Suggest a correction</a> (needs a free GitHub account).</p>
   </section>
 
+  </main>
   <footer>Created by Gwen Sharp (<a href="https://x.com/gsharpokie">@gsharpokie</a>). Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Emissions data: Global Carbon Project via Our World in Data (CC BY 4.0).</footer>
 </div>
 
